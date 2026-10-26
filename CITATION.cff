@@ -1,0 +1,17 @@
+cff-version: 1.2.0
+message: "If you use this code, please cite the paper below."
+title: "t-copula-information-measures"
+type: software
+authors:
+  - family-names: Liu
+    given-names: Huixiaqing
+license: MIT
+repository-code: "https://github.com/suddenBook/t-copula-information-measures"
+preferred-citation:
+  type: article
+  title: "[Title of the manuscript]"
+  authors:
+    - family-names: Liu
+      given-names: Huixiaqing
+    - name: "[Co-authors]"
+  journal: "[Journal]"

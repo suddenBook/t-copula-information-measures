@@ -1,0 +1,35 @@
+# Ignore everything at the top level, then allow the source tree back in.
+# A new top-level file or folder stays untracked until it is listed here.
+# The recordings in data/, the pipeline output in results/ and any local notes stay out this way.
+/*
+!/src/
+!/scripts/
+!/tests/
+!/LICENSE
+!/README.md
+!/CITATION.cff
+!/.gitignore
+
+# Python and notebook artifacts.
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.ipynb_checkpoints/
+
+# Cluster settings of the local site; scripts/hpc/site.env.example is the template.
+# This rule has to follow the allow-list, which admits scripts/.
+/scripts/hpc/site.env
+
+# MATLAB artifacts.
+*.asv
+*.mex*
+*.m~
+octave-workspace
+slprj/
+codegen/
+
+# Editor and OS files.
+*~
+.DS_Store
+Thumbs.db
