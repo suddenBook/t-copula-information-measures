@@ -1,5 +1,5 @@
 function r = tDigammaDiff(a, m)
-    %TDIGAMMADIFF psi(a + m/2) - psi(a) without cancellation at large a.
+    % TDIGAMMADIFF psi(a + m/2) - psi(a) without cancellation at large a.
     %
     % r = tDigammaDiff(a, m) returns the digamma difference for a > 0 (array) and a non-negative integer m (scalar).
     % Below a = 1e4 the two psi values are subtracted directly.
@@ -13,7 +13,7 @@ function r = tDigammaDiff(a, m)
     end
     r = zeros(size(a));
     if m == 0
-        return;
+        return
     end
     direct = a < 1e4;
     if any(direct(:))
@@ -28,7 +28,7 @@ function r = tDigammaDiff(a, m)
             half = 0;
         else
             offset = 0.5;
-            half = 1 ./ (2 * aL) + 1 ./ (8 * aL .^ 2) - 1 ./ (64 * aL .^ 4);
+            half = 1 ./ (2 * aL) + 1 ./ (8 * aL.^2) - 1 ./ (64 * aL.^4);
         end
         steps = zeros(size(aL));
         for j = 0:k - 1

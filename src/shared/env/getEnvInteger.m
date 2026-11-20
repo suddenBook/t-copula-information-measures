@@ -1,5 +1,5 @@
 function value = getEnvInteger(name, defaultValue, limits)
-    %GETENVINTEGER Strict integer environment-variable parser.
+    % GETENVINTEGER Strict integer environment-variable parser.
     %
     % Inputs:
     %   name         - environment variable name.
@@ -16,12 +16,12 @@ function value = getEnvInteger(name, defaultValue, limits)
     raw = strtrim(string(getenv(name)));
     if strlength(raw) == 0
         value = defaultValue;
-        return;
+        return
     end
     value = str2double(raw);
     assert(isscalar(value) && isfinite(value) && value == fix(value) && ...
-        value >= limits(1) && value <= limits(2), ...
-        'getEnvInteger:InvalidValue', ...
-        '%s must be an integer in [%g,%g]; got "%s".', ...
-        name, limits(1), limits(2), raw);
+           value >= limits(1) && value <= limits(2), ...
+           'getEnvInteger:InvalidValue', ...
+           '%s must be an integer in [%g,%g]; got "%s".', ...
+           name, limits(1), limits(2), raw);
 end

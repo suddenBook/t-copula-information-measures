@@ -1,5 +1,5 @@
 function [ovl, info] = distributionOverlap(a, b, n_bins, atoms)
-    %DISTRIBUTIONOVERLAP Overlap coefficient of two samples on shared equal-count cells.
+    % DISTRIBUTIONOVERLAP Overlap coefficient of two samples on shared equal-count cells.
     %
     % [ovl, info] = distributionOverlap(a, b, n_bins, atoms) returns the overlap coefficient OVL = sum over cells of min(P_a, P_b) of two samples a and b, where P_a and P_b are the shares of each sample that fall in each cell.
     % OVL is 1 when the two samples put the same share of their values in every cell and 0 when no cell holds values of both; 1 - OVL is the mass outside the overlap.
@@ -47,10 +47,10 @@ function [ovl, info] = distributionOverlap(a, b, n_bins, atoms)
     finite_a = isfinite(a);
     finite_b = isfinite(b);
     info = struct('status', 'ok', ...
-        'n_a', nnz(finite_a), 'n_b', nnz(finite_b), ...
-        'n_dropped_a', nnz(~finite_a), 'n_dropped_b', nnz(~finite_b), ...
-        'atoms', atoms, 'edges', zeros(1, 0), ...
-        'mass_a', zeros(1, 0), 'mass_b', zeros(1, 0));
+                  'n_a', nnz(finite_a), 'n_b', nnz(finite_b), ...
+                  'n_dropped_a', nnz(~finite_a), 'n_dropped_b', nnz(~finite_b), ...
+                  'atoms', atoms, 'edges', zeros(1, 0), ...
+                  'mass_a', zeros(1, 0), 'mass_b', zeros(1, 0));
     a = a(finite_a);
     b = b(finite_b);
 
@@ -71,11 +71,10 @@ function [ovl, info] = distributionOverlap(a, b, n_bins, atoms)
     end
     if ~strcmp(info.status, 'ok')
         ovl = NaN;
-        return;
+        return
     end
     ovl = sum(min(info.mass_a, info.mass_b));
 end
-
 
 function mass = localCellMass(x, atoms, edges)
     % The share of x in each cell: the atoms first, then the bins [-Inf, e1), ..., [e(J-1), Inf].
@@ -83,7 +82,7 @@ function mass = localCellMass(x, atoms, edges)
     n_cells = numel(atoms) + numel(edges) + 1;
     if isempty(x)
         mass = nan(1, n_cells);
-        return;
+        return
     end
     % Every index vector is forced to a column, because logical indexing of a one-value sample returns 0 x 0 rather than 0 x 1, which accumarray refuses.
     x = x(:);

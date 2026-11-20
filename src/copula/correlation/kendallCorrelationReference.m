@@ -1,6 +1,6 @@
 function [correlation, audit] = kendallCorrelationReference( ...
-        kendallTau, fitOptions)
-    %KENDALLCORRELATIONREFERENCE Build and audit a Kendall-derived correlation reference.
+                                                            kendallTau, fitOptions)
+    % KENDALLCORRELATIONREFERENCE Build and audit a Kendall-derived correlation reference.
     %
     % The positive-definite repair performed by kendallToCorrelation is a numerical construction, not evidence that the empirical rank correlations are mutually compatible.
     % Every fit consumer therefore shares this audit: a repaired d >= 3 reference is reported as gross when the RMS off-diagonal change exceeds max_projection_shift_rms.
@@ -20,8 +20,8 @@ function [correlation, audit] = kendallCorrelationReference( ...
     end
 
     assert(size(kendallTau, 1) == size(kendallTau, 2), ...
-        'kendallCorrelationReference:NonSquareTau', ...
-        'The Kendall-tau matrix must be square.');
+           'kendallCorrelationReference:NonSquareTau', ...
+           'The Kendall-tau matrix must be square.');
 
     % The declared bound on the root-mean-square entry shift of the repair, which fitOptions may override.
     threshold = 0.02;
@@ -30,7 +30,7 @@ function [correlation, audit] = kendallCorrelationReference( ...
         threshold = fitOptions.max_projection_shift_rms;
     end
     validateattributes(threshold, {'double'}, {'scalar', 'nonnegative', 'finite'}, ...
-        mfilename, 'max_projection_shift_rms');
+                       mfilename, 'max_projection_shift_rms');
     [correlation, ~, numericalAudit] = ...
         kendallToCorrelation(kendallTau);
 

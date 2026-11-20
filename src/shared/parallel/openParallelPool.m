@@ -1,5 +1,5 @@
 function n_workers = openParallelPool(use_parallel, workers)
-    %OPENPARALLELPOOL Open (or reuse) a local parpool of the requested size.
+    % OPENPARALLELPOOL Open (or reuse) a local parpool of the requested size.
     %
     % Pool size is a pure scheduling choice: the units of every phase are independent and every worker runs NumThreads = 1 (the parcluster('local') default, not overridden here), so the worker count cannot move a result.
     %
@@ -19,11 +19,13 @@ function n_workers = openParallelPool(use_parallel, workers)
     end
 
     n_workers = 0;
-    if ~use_parallel, return; end
+    if ~use_parallel
+        return
+    end
     if ~license('test', 'Distrib_Computing_Toolbox')
         fprintf(['openParallelPool: Parallel Computing Toolbox unavailable; ' ...
-            'continuing serially.\n']);
-        return;
+                 'continuing serially.\n']);
+        return
     end
 
     try
@@ -36,21 +38,23 @@ function n_workers = openParallelPool(use_parallel, workers)
         pool = gcp('nocreate');
         if ~isempty(pool) && pool.NumWorkers == target
             n_workers = pool.NumWorkers;
-            return;
+            return
         end
-        if ~isempty(pool), delete(pool); end
+        if ~isempty(pool)
+            delete(pool);
+        end
         pool = parpool(clus, target);
         n_workers = pool.NumWorkers;
     catch ME
         fprintf('openParallelPool: parpool init failed; continuing serially: %s\n', ...
-            ME.message);
+                ME.message);
         n_workers = 0;
-        return;
+        return
     end
 
     if ~isempty(workers) && n_workers ~= workers
         fprintf(['openParallelPool: %d workers requested, pool opened with %d; ' ...
-            'continuing at %d (scheduling only, no result depends on it).\n'], ...
-            workers, n_workers, n_workers);
+                 'continuing at %d (scheduling only, no result depends on it).\n'], ...
+                workers, n_workers, n_workers);
     end
 end

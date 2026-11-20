@@ -1,4 +1,4 @@
-%SELECTTERTILEPAIRS Deterministic choice of representative channel pairs per |tau| tertile.
+% SELECTTERTILEPAIRS Deterministic choice of representative channel pairs per |tau| tertile.
 %
 % [sel_idx, band_of] = selectTertilePairs(abs_tau, n_per_band) splits the pairs into three dependence-strength bands by the tertiles of |tau| and, within each non-empty band, returns the pairs whose |tau| is nearest that band's median |tau|.
 % The rule uses no random numbers, so the chosen pairs are the same on every run.
@@ -25,7 +25,7 @@ function [sel_idx, band_of] = selectTertilePairs(abs_tau, n_per_band)
     n_pairs = numel(abs_tau);
 
     % Tertile edges of |tau| and the band of every pair.
-    tertile_edges = quantile(abs_tau, [1/3, 2/3]);
+    tertile_edges = quantile(abs_tau, [1 / 3, 2 / 3]);
     band_of = ones(n_pairs, 1);
     band_of(abs_tau > tertile_edges(1) & abs_tau <= tertile_edges(2)) = 2;
     band_of(abs_tau > tertile_edges(2)) = 3;
@@ -34,7 +34,7 @@ function [sel_idx, band_of] = selectTertilePairs(abs_tau, n_per_band)
     for b = 1:3
         idx = find(band_of == b);
         if isempty(idx)
-            continue;
+            continue
         end
         band_median = median(abs_tau(idx));
         % Nearest to the band median first; sort is stable, so equal distances keep ascending index order and ties go to the lowest index.

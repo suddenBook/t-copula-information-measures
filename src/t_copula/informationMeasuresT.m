@@ -1,5 +1,5 @@
 function out = informationMeasuresT(R, p, varargin)
-    %INFORMATIONMEASUREST Information measures of one channel set under the fitted Student-t copula.
+    % INFORMATIONMEASUREST Information measures of one channel set under the fitted Student-t copula.
     %
     % out = informationMeasuresT(R, p, ...) returns, for MI, TC, DTC and O, the Gaussian closed form, the Student-t value from the fitted shape (through the copula entropy H_c = 1/2 log det R + kappa_t(d, nu)), the optional model-free KSG reference, and the t-minus-Gaussian difference in nats with a denominator-audited descriptive percentage.
     % The t values come from tCopulaEntropy, which is closed form in log-gamma and digamma terms, so nothing is integrated and there is no quadrature tolerance.
@@ -51,22 +51,22 @@ function out = informationMeasuresT(R, p, varargin)
     % Other output fields: d, p, nu, kappa, kappa_margin, valid, the two thresholds and the two O cancellation ratios; nu = 1/p is Inf at p = 0.
 
     validateattributes(p, {'double'}, ...
-        {'scalar', 'real', 'finite', 'nonnegative'}, ...
-        'informationMeasuresT', 'p');
+                       {'scalar', 'real', 'finite', 'nonnegative'}, ...
+                       'informationMeasuresT', 'p');
 
     parser = inputParser;
     parser.addParameter('X', [], @(x) isempty(x) || isnumeric(x));
     parser.addParameter('KSGk', 6, @(x) isnumeric(x) && isreal(x) && isscalar(x));
     parser.addParameter('PctMinAbsDenominator', 1e-3, ...
-        @(x) isscalar(x) && isfinite(x) && x >= 0);
+                        @(x) isscalar(x) && isfinite(x) && x >= 0);
     parser.addParameter('OPctMinCancellationRatio', 0.1, ...
-        @(x) isscalar(x) && isfinite(x) && x >= 0 && x <= 1);
+                        @(x) isscalar(x) && isfinite(x) && x >= 0 && x <= 1);
     parser.parse(varargin{:});
     X = parser.Results.X;
     ksgK = parser.Results.KSGk;
     if ~(isfinite(ksgK) && ksgK >= 1 && ksgK == fix(ksgK))
         error('informationMeasuresT:InvalidKSGk', ...
-            'KSGk must be a finite positive integer.');
+              'KSGk must be a finite positive integer.');
     end
 
     d = size(R, 1);
@@ -76,11 +76,11 @@ function out = informationMeasuresT(R, p, varargin)
 
     G = gaussianInformationMeasures(R);
     if ~G.valid
-        return;
+        return
     end
     ce = tCopulaEntropy(d, p);
     if ~ce.valid
-        return;
+        return
     end
     out.kappa        = ce.kappa;
     out.kappa_margin = ce.kappa_margin;
@@ -92,22 +92,27 @@ function out = informationMeasuresT(R, p, varargin)
     MI_t  = TC_t;                                    % d = 2: MI = TC
 
     % --- model-free (KSG) reference (MI at d=2, TC at d>=3) --------------
-    ksg_MI = NaN; ksg_TC = NaN;
+    ksg_MI = NaN;
+    ksg_TC = NaN;
     if ~isempty(X) && size(X, 2) == d
         mf = estimateMIKSG(X, ksgK);
-        if d == 2, ksg_MI = mf; else, ksg_TC = mf; end
+        if d == 2
+            ksg_MI = mf;
+        else
+            ksg_TC = mf;
+        end
     end
 
     % --- pack per-measure (gauss / t / ksg / delta nats / delta %) -------
     % MI, TC and DTC are not sign-indefinite differences of larger quantities, so neither denominator needs a cancellation guard for them; only the absolute floor applies, on both.
     if d == 2
         out = local_pack(out, 'MI', G.MI, MI_t, ksg_MI, ...
-            pctMinDenominator, true, true);
+                         pctMinDenominator, true, true);
     end
     out = local_pack(out, 'TC',  G.TC,  TC_t,  ksg_TC, ...
-        pctMinDenominator, true, true);
+                     pctMinDenominator, true, true);
     out = local_pack(out, 'DTC', G.DTC, DTC_t, NaN, ...
-        pctMinDenominator, true, true);
+                     pctMinDenominator, true, true);
     % O is TC - DTC on both denominators, so both can be a small difference of two much larger quantities.
     % The guard is therefore evaluated separately per denominator: the Gaussian ratio does not bound the fitted one.
     oCancellationRatio = local_cancellation_ratio(G.O, G.TC, G.DTC);
@@ -115,15 +120,15 @@ function out = informationMeasuresT(R, p, varargin)
     out.O_pct_cancellation_ratio = oCancellationRatio;
     out.O_pct_cancellation_ratio_t = oCancellationRatioT;
     out = local_pack(out, 'O', G.O, O_t, NaN, pctMinDenominator, ...
-        oCancellationRatio >= oMinCancellationRatio, ...
-        oCancellationRatioT >= oMinCancellationRatio);
+                     oCancellationRatio >= oMinCancellationRatio, ...
+                     oCancellationRatioT >= oMinCancellationRatio);
     out.valid = true;
 end
 
 % ---------------------------------------------------------------------------
 function out = local_pack(out, name, gval, tval, ksgval, minDenominator, ...
-        extraStableGauss, extraStableT)
-    %LOCAL_PACK Emit one measure against both percentage denominators.
+                          extraStableGauss, extraStableT)
+    % LOCAL_PACK Emit one measure against both percentage denominators.
     %
     % The unsuffixed family is the Gaussian denominator and the _t family the fitted Student-t denominator.
     % The two carry independent suppression state because they fail in different places, so neither reportable flag may be inferred from the other.
@@ -137,7 +142,7 @@ function out = local_pack(out, name, gval, tval, ksgval, minDenominator, ...
 
     % --- Gaussian denominator: the error a practitioner incurs by using the Gaussian closed form.
     [reportable, statusCode] = local_percentage_status( ...
-        gval, minDenominator, extraStableGauss);
+                                                       gval, minDenominator, extraStableGauss);
     out.([name '_pct_denominator']) = gval;
     out.([name '_pct_reportable']) = reportable;
     out.([name '_pct_status_code']) = statusCode;
@@ -150,7 +155,7 @@ function out = local_pack(out, name, gval, tval, ksgval, minDenominator, ...
     % --- Fitted Student-t denominator: the share of the modelled dependence the Gaussian calculation misses.
     % It lies between 0 and 100 whenever the difference and the Gaussian value share a sign.
     [reportableT, statusCodeT] = local_percentage_status( ...
-        tval, minDenominator, extraStableT);
+                                                         tval, minDenominator, extraStableT);
     out.([name '_pct_denominator_t']) = tval;
     out.([name '_pct_reportable_t']) = reportableT;
     out.([name '_pct_status_code_t']) = statusCodeT;
@@ -161,10 +166,9 @@ function out = local_pack(out, name, gval, tval, ksgval, minDenominator, ...
     end
 end
 
-
 function [reportable, statusCode] = local_percentage_status( ...
-        denominator, minDenominator, extraStable)
-    %LOCAL_PERCENTAGE_STATUS Shared status rule, applied per denominator.
+                                                            denominator, minDenominator, extraStable)
+    % LOCAL_PERCENTAGE_STATUS Shared status rule, applied per denominator.
     %
     % Codes are identical in meaning on both denominators (see the file header): 1 reportable, 2 denominator below the declared absolute floor, 3 cancellation unstable.
     % The floor check runs first, so 2 pre-empts 3.
@@ -172,12 +176,11 @@ function [reportable, statusCode] = local_percentage_status( ...
     %
     % The rule lives in percentageStatus, which tInformationMeasuresFromLogdets also calls when Phase 4 rebuilds these percentages from the Phase 2 log-determinants, so one rule has one implementation.
     [reportable, statusCode] = percentageStatus( ...
-        denominator, minDenominator, extraStable);
+                                                denominator, minDenominator, extraStable);
 end
 
-
 function ratio = local_cancellation_ratio(oValue, tcValue, dtcValue)
-    %LOCAL_CANCELLATION_RATIO |O| / (|TC| + |DTC|) on one denominator's scale.
+    % LOCAL_CANCELLATION_RATIO |O| / (|TC| + |DTC|) on one denominator's scale.
     %
     % O is a difference of two much larger positives, so |O| can be numerically tiny while clearing the absolute floor; this ratio detects that, and the floor alone does not.
     % It returns 0 for a zero scale, which suppresses rather than divides by zero.
@@ -194,10 +197,10 @@ function out = local_nan_out(d, p, minDenominator, oMinCancellationRatio)
     %
     % The MI fields are emitted at every d and stay NaN for d >= 3, where mutual information is not reported, which keeps the field set constant across d as well as across the valid and invalid paths.
     out = struct('d', d, 'p', p, 'nu', 1 / p, 'kappa', NaN, 'kappa_margin', NaN, ...
-        'pct_min_abs_denominator_nats', minDenominator, ...
-        'O_pct_min_cancellation_ratio', oMinCancellationRatio, ...
-        'O_pct_cancellation_ratio', NaN, ...
-        'O_pct_cancellation_ratio_t', NaN, 'valid', false);
+                 'pct_min_abs_denominator_nats', minDenominator, ...
+                 'O_pct_min_cancellation_ratio', oMinCancellationRatio, ...
+                 'O_pct_cancellation_ratio', NaN, ...
+                 'O_pct_cancellation_ratio_t', NaN, 'valid', false);
     for name = {'MI', 'TC', 'DTC', 'O'}
         n = name{1};
         out.([n '_gauss'])      = NaN;

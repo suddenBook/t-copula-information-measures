@@ -1,5 +1,5 @@
 function [row, tau, R] = tFitChannelSet(X, grp, fit_opts, cache)
-    %TFITCHANNELSET Canonical t-copula unit fit for one channel set (d = 2..20).
+    % TFITCHANNELSET Canonical t-copula unit fit for one channel set (d = 2..20).
     %
     % The one pair and group driver for the Student-t shape parameter p = 1/nu: it runs the four steps of the study's unit recipe on one channel set of a recording and returns one flat unit row (the row tFitUnit defines).
     %
@@ -34,14 +34,14 @@ function [row, tau, R] = tFitChannelSet(X, grp, fit_opts, cache)
     d = numel(grp);
     if d < 2 || d > 20
         error('tFitChannelSet:GroupWidthOutOfRange', ...
-            ['The row pads channels to width 20, so a channel set holds ' ...
-            'between 2 and 20 channels; got d = %d.'], d);
+              ['The row pads channels to width 20, so a channel set holds ' ...
+               'between 2 and 20 channels; got d = %d.'], d);
     end
     if max(grp) > size(X, 2)
         error('tFitChannelSet:ChannelOutOfRange', ...
-            ['X is [samples x channels] and has %d columns, so channel %d does ' ...
-            'not exist (X is %d x %d).'], size(X, 2), max(grp), ...
-            size(X, 1), size(X, 2));
+              ['X is [samples x channels] and has %d columns, so channel %d does ' ...
+               'not exist (X is %d x %d).'], size(X, 2), max(grp), ...
+              size(X, 1), size(X, 2));
     end
 
     Xg = X(:, grp);

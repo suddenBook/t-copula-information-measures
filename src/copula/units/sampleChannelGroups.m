@@ -1,5 +1,5 @@
 function groups = sampleChannelGroups(n_channels, d, n_groups, seed)
-    %SAMPLECHANNELGROUPS The d-dimensional unit set: a seeded, de-duplicated group sample.
+    % SAMPLECHANNELGROUPS The d-dimensional unit set: a seeded, de-duplicated group sample.
     %
     % When the channels have at most n_groups combinations, all of them are returned in nchoosek order; otherwise distinct groups are rejection-sampled from a dedicated RandStream.
     %
@@ -18,18 +18,22 @@ function groups = sampleChannelGroups(n_channels, d, n_groups, seed)
     total = nchoosek(n_channels, d);
     if total <= n_groups
         groups = nchoosek(1:n_channels, d);
-        return;
+        return
     end
     rs = RandStream('twister', 'Seed', seed);
     seen = containers.Map('KeyType', 'char', 'ValueType', 'logical');
     groups = zeros(n_groups, d);
-    k = 0; tries = 0; max_tries = 50 * n_groups;
+    k = 0;
+    tries = 0;
+    max_tries = 50 * n_groups;
     while k < n_groups && tries < max_tries
         tries = tries + 1;
         cand = sort(randperm(rs, n_channels, d));
         key = sprintf('%d_', cand);
         if ~isKey(seen, key)
-            seen(key) = true; k = k + 1; groups(k, :) = cand;
+            seen(key) = true;
+            k = k + 1;
+            groups(k, :) = cand;
         end
     end
     groups = groups(1:k, :);

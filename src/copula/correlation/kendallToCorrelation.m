@@ -1,4 +1,4 @@
-%KENDALLTOCORRELATION Map a Kendall's tau matrix to an elliptical-copula correlation matrix.
+% KENDALLTOCORRELATION Map a Kendall's tau matrix to an elliptical-copula correlation matrix.
 %
 % Uses the elliptical-copula identity rho = sin(pi * tau / 2), applied elementwise (the Gaussian copula is one member of that class).
 % For d >= 3 the resulting matrix need not be positive definite, so it is symmetrized and, when its smallest eigenvalue is at most EigenFloor, its eigenvalues are floored and its diagonal renormalized.
@@ -33,9 +33,9 @@ function [Sigma, Sigma_m1, info] = kendallToCorrelation(tau_matrix, varargin)
         Sigma = 1;
         Sigma_m1 = 1;
         info = struct('pd_before', true, 'min_eig_before', 1, ...
-            'min_eig_after', 1, 'projection_applied', false, ...
-            'off_diag_shift_l2', 0, 'valid', true, 'reason', '');
-        return;
+                      'min_eig_after', 1, 'projection_applied', false, ...
+                      'off_diag_shift_l2', 0, 'valid', true, 'reason', '');
+        return
     end
 
     % Elementwise tau -> rho via the elliptical-copula identity.
@@ -49,7 +49,11 @@ function [Sigma, Sigma_m1, info] = kendallToCorrelation(tau_matrix, varargin)
         rho = rho_matrix(1, 2);
         min_eig = 1 - abs(rho);
         valid = min_eig >= 1e-6;
-        if valid, reason = ''; else, reason = 'degenerate_d2_duplicate_channel'; end
+        if valid
+            reason = '';
+        else
+            reason = 'degenerate_d2_duplicate_channel';
+        end
         Sigma = [1, rho; rho, 1];
         denom = 1 - rho^2;
         if denom > 0
@@ -58,9 +62,9 @@ function [Sigma, Sigma_m1, info] = kendallToCorrelation(tau_matrix, varargin)
             Sigma_m1 = inf(2);   % exactly singular: a sentinel; callers gate on info.valid
         end
         info = struct('pd_before', valid, 'min_eig_before', min_eig, ...
-            'min_eig_after', min_eig, 'projection_applied', false, ...
-            'off_diag_shift_l2', 0, 'valid', valid, 'reason', reason);
-        return;
+                      'min_eig_after', min_eig, 'projection_applied', false, ...
+                      'off_diag_shift_l2', 0, 'valid', valid, 'reason', reason);
+        return
     end
 
     % d >= 3: unless already positive definite above the floor, eigen-decompose, floor the eigenvalues, rebuild and renormalize the diagonal.
@@ -91,7 +95,7 @@ function [Sigma, Sigma_m1, info] = kendallToCorrelation(tau_matrix, varargin)
     [L, chol_flag] = chol(Sigma, 'lower');
     if chol_flag ~= 0
         error('kendallToCorrelation:NotPD', ...
-            'Correlation matrix failed Cholesky after projection.');
+              'Correlation matrix failed Cholesky after projection.');
     end
     Sigma_m1 = L.' \ (L \ eye(d));
     Sigma_m1 = (Sigma_m1 + Sigma_m1.') / 2;
@@ -100,11 +104,11 @@ function [Sigma, Sigma_m1, info] = kendallToCorrelation(tau_matrix, varargin)
     off_diag_shift_l2 = norm(post_off - pre_off, 'fro');
 
     info = struct( ...
-        'pd_before',          pd_before, ...
-        'min_eig_before',     lambda_min_before, ...
-        'min_eig_after',      min(eig(Sigma)), ...
-        'projection_applied', projection_applied, ...
-        'off_diag_shift_l2',  off_diag_shift_l2, ...
-        'valid',              true, ...
-        'reason',             '');
+                  'pd_before',          pd_before, ...
+                  'min_eig_before',     lambda_min_before, ...
+                  'min_eig_after',      min(eig(Sigma)), ...
+                  'projection_applied', projection_applied, ...
+                  'off_diag_shift_l2',  off_diag_shift_l2, ...
+                  'valid',              true, ...
+                  'reason',             '');
 end

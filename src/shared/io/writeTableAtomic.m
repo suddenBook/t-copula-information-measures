@@ -1,5 +1,5 @@
 function writeTableAtomic(T, path)
-    %WRITETABLEATOMIC Write a table to CSV through a temporary file and a rename.
+    % WRITETABLEATOMIC Write a table to CSV through a temporary file and a rename.
     %
     % writeTableAtomic(T, path) writes T with writetable to a temporary file beside path and then moves it into place, so an interrupted write can never leave a half-written CSV that a later step would read as complete.
     %
@@ -22,12 +22,11 @@ function writeTableAtomic(T, path)
     end
     [ok, msg] = movefile(tmp, path, 'f');
     assert(ok, 'writeTableAtomic:MoveFailed', ...
-        'Could not move %s into place: %s', tmp, msg);
+           'Could not move %s into place: %s', tmp, msg);
 end
 
-
 function name = localWriterTempName(path, suffix)
-    %LOCALWRITERTEMPNAME Staging name '<path>.<host>.<pid>.<token>' plus SUFFIX, unique to one writer.
+    % LOCALWRITERTEMPNAME Staging name '<path>.<host>.<pid>.<token>' plus SUFFIX, unique to one writer.
     % The token comes from tempname, which is unique without drawing on the global random stream the study's reproducibility depends on, and the host and process id make a leftover attributable to the job that wrote it.
     host = getenv('HOSTNAME');
     if isempty(host)
@@ -38,5 +37,5 @@ function name = localWriterTempName(path, suffix)
     end
     [~, token] = fileparts(tempname);
     name = sprintf('%s.%s.%d.%s%s', path, regexprep(host, '[^\w-]', '_'), ...
-        feature('getpid'), token, suffix);
+                   feature('getpid'), token, suffix);
 end

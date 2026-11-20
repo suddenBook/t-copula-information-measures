@@ -1,4 +1,4 @@
-%ZSCORECOLUMNSSAFE Z-score each column, setting near-constant columns to zero.
+% ZSCORECOLUMNSSAFE Z-score each column, setting near-constant columns to zero.
 %
 %   [X_z, info] = zscoreColumnsSafe(X)
 %
@@ -35,7 +35,7 @@ function [X_z, info] = zscoreColumnsSafe(X)
 
         if isempty(valid_x)
             constant_channels(end + 1) = j; %#ok<AGROW>
-            continue;
+            continue
         end
 
         mu = mean(valid_x);

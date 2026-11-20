@@ -1,4 +1,4 @@
-%VISUALIZEEXCLUDEDCHANNELS Plot the detector candidates for interactive review.
+% VISUALIZEEXCLUDEDCHANNELS Plot the detector candidates for interactive review.
 %
 % Draws an interactive figure used as a human input surface: cleanSEEGArtifacts calls it only in interactive mode, before the promptArtifactChannelSelection prompt.
 % In automatic mode render_phase1_excluded_channels.py renders the same traces instead.
@@ -20,7 +20,7 @@ function visualizeExcludedChannels(X, severe_channels, channel_artifact_pct, fs,
 
     n_excluded = length(severe_channels);
     if n_excluded == 0
-        return;
+        return
     end
 
     t = (0:size(X, 1) - 1) / fs;
@@ -35,7 +35,7 @@ function visualizeExcludedChannels(X, severe_channels, channel_artifact_pct, fs,
         n_plots = ch_end - ch_start + 1;
 
         figure('Position', [100, 50, 1200, 180 * n_plots], ...
-            'Name', sprintf('Excluded Channels (%d/%d)', fig_idx, n_figures));
+               'Name', sprintf('Excluded Channels (%d/%d)', fig_idx, n_figures));
 
         for i = 1:n_plots
             idx = ch_start + i - 1;
@@ -46,7 +46,7 @@ function visualizeExcludedChannels(X, severe_channels, channel_artifact_pct, fs,
 
             % Title with the detector score and the reasons
             title_str = sprintf('Channel %d — legacy detector score %.1f', ...
-                ch, channel_artifact_pct(ch));
+                                ch, channel_artifact_pct(ch));
             if ~isempty(reasons) && idx <= length(reasons)
                 title_str = sprintf('%s  |  %s', title_str, reasons{idx});
             end
@@ -62,7 +62,7 @@ function visualizeExcludedChannels(X, severe_channels, channel_artifact_pct, fs,
 
         xlabel('Time (s)');
         sgtitle('Detector candidates — interactive review, no automatic verdict', ...
-            'FontSize', 13, 'FontWeight', 'bold');
+                'FontSize', 13, 'FontWeight', 'bold');
     end
 
 end

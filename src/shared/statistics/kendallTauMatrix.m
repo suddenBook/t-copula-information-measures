@@ -1,5 +1,5 @@
 function tau = kendallTauMatrix(X)
-    %KENDALLTAUMATRIX d x d Kendall's tau-b matrix from pairwise Knight's tau.
+    % KENDALLTAUMATRIX d x d Kendall's tau-b matrix from pairwise Knight's tau.
     %
     % Fills the symmetric tau-b matrix (unit diagonal) by calling kendallTauKnight on every column pair of X.
     % It equals corr(X, 'type', 'Kendall') to floating precision, ties included, at O(d^2 * n log^2 n) instead of O(d^2 * n^2), and it uses every row of X.

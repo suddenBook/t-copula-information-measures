@@ -1,4 +1,4 @@
-%ESTIMATEMIKSG Model-free copula mutual information (d = 2) or total correlation (d >= 3) by the Kraskov-Stoegbauer-Grassberger estimator.
+% ESTIMATEMIKSG Model-free copula mutual information (d = 2) or total correlation (d >= 3) by the Kraskov-Stoegbauer-Grassberger estimator.
 %
 % Implements the first Kraskov-Stoegbauer-Grassberger estimator (KSG algorithm 1), which makes no parametric copula assumption.
 % The function removes the marginal scales itself, with the complete-case, average-rank pseudo-observations the copula fits use (computeCopulaPseudoObservations), and applies KSG to their normal scores.
@@ -40,27 +40,27 @@ function MI = estimateMIKSG(X, k, varargin)
 
     validateattributes(X, {'numeric'}, {'2d', 'real'}, mfilename, 'X', 1);
     if ~(isnumeric(k) && isreal(k) && isscalar(k) && isfinite(k) ...
-            && k >= 1 && k == fix(k))
+         && k >= 1 && k == fix(k))
         error('estimateMIKSG:InvalidK', ...
-            'The neighbour count k must be a finite positive integer.');
+              'The neighbour count k must be a finite positive integer.');
     end
     [~, d] = size(X);
     assert(d >= 2, 'estimateMIKSG:TooFewDimensions', ...
-        'Input must have at least 2 columns.');
+           'Input must have at least 2 columns.');
 
     % A copula estimate must not depend on electrode units, so the ranks come from the same pseudo-observation function as the copula fits.
     [U, ~, rank_diag] = computeCopulaPseudoObservations(double(X), ...
-        'Rows', 'complete', 'MinSamples', k + 2);
+                                                        'Rows', 'complete', 'MinSamples', k + 2);
     N = size(U, 1);
     assert(N > k + 1 && ~rank_diag.too_few_samples, ...
-        'estimateMIKSG:TooFewCompleteRows', ...
-        'Need at least k+2=%d jointly finite rows; observed %d.', k + 2, N);
+           'estimateMIKSG:TooFewCompleteRows', ...
+           'Need at least k+2=%d jointly finite rows; observed %d.', k + 2, N);
     assert(~rank_diag.has_constant_column, ...
-        'estimateMIKSG:ConstantColumn', ...
-        'KSG copula information is undefined when a fitted column is constant.');
+           'estimateMIKSG:ConstantColumn', ...
+           'KSG copula information is undefined when a fitted column is constant.');
     X = norminv(U);
     assert(all(isfinite(X), 'all'), 'estimateMIKSG:RankTransformFailure', ...
-        'Rank-normal pseudo-observations must be finite.');
+           'Rank-normal pseudo-observations must be finite.');
 
     % The optional jitter before knnsearch breaks ties in resampled or duplicated data.
     % It is off by default, so estimates on tie-free data are unchanged.
@@ -81,10 +81,10 @@ function MI = estimateMIKSG(X, k, varargin)
     epsilon = D(:, k + 1);
     if any(epsilon == 0)
         error('estimateMIKSG:ZeroKthDistance', ...
-            ['The k-th joint-neighbour distance is zero for %d/%d rows. ' ...
-            'KSG Algorithm 1 is undefined for this tied sample; use an ' ...
-            'explicit, reproducibly seeded jitter policy or remove duplicates.'], ...
-            nnz(epsilon == 0), N);
+              ['The k-th joint-neighbour distance is zero for %d/%d rows. ' ...
+               'KSG Algorithm 1 is undefined for this tied sample; use an ' ...
+               'explicit, reproducibly seeded jitter policy or remove duplicates.'], ...
+              nnz(epsilon == 0), N);
     end
 
     % Step 2: count the marginal neighbours within epsilon in each dimension.
@@ -114,7 +114,6 @@ function MI = estimateMIKSG(X, k, varargin)
 
 end
 
-
 %% Local helper: count of elements strictly less than each query value
 function ranks = mergeSortedRankLT(x_sorted, queries)
     % For each query q, the number of elements of the sorted vector x_sorted strictly below q.
@@ -137,7 +136,6 @@ function ranks = mergeSortedRankLT(x_sorted, queries)
     ranks = zeros(M, 1);
     ranks(q_order) = ranks_sorted;
 end
-
 
 %% Local helper: count of elements less than or equal to each query value
 function ranks = mergeSortedRankLE(x_sorted, queries)

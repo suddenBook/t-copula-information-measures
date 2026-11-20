@@ -1,5 +1,5 @@
 function tau = integratedAutocorrelationTime(acf, lags)
-    %INTEGRATEDAUTOCORRELATIONTIME Integrated autocorrelation time over a lag window.
+    % INTEGRATEDAUTOCORRELATIONTIME Integrated autocorrelation time over a lag window.
     %
     % Returns TAU = dt * (1 + 2 * sum(ACF(2:end))), with dt the lag step: the integrated autocorrelation time of the series over the lags given.
     % TAU / dt is the factor by which serial dependence inflates the variance of a sample mean of the series, so the effective sample size of n samples is n dt / TAU.
@@ -12,19 +12,19 @@ function tau = integratedAutocorrelationTime(acf, lags)
     %   LAGS - [L+1 x 1] equally spaced lags starting at 0, at least 2 of them; TAU is returned in these units.
 
     arguments
-        acf (:,1) double {mustBeReal}
-        lags (:,1) double {mustBeReal, mustBeFinite}
+        acf (:, 1) double {mustBeReal}
+        lags (:, 1) double {mustBeReal, mustBeFinite}
     end
 
     assert(numel(acf) == numel(lags) && numel(lags) >= 2, ...
-        'integratedAutocorrelationTime:ShapeMismatch', ...
-        'ACF and LAGS must have the same length of at least 2; got %d and %d.', ...
-        numel(acf), numel(lags));
+           'integratedAutocorrelationTime:ShapeMismatch', ...
+           'ACF and LAGS must have the same length of at least 2; got %d and %d.', ...
+           numel(acf), numel(lags));
     step = diff(lags);
     assert(lags(1) == 0 && all(step > 0) && max(abs(step - step(1))) <= 1e-9 * max(1, abs(step(1))), ...
-        'integratedAutocorrelationTime:InvalidLags', 'LAGS must start at 0 and be equally spaced.');
+           'integratedAutocorrelationTime:InvalidLags', 'LAGS must start at 0 and be equally spaced.');
     assert(all(isfinite(acf)), 'integratedAutocorrelationTime:NonFiniteAcf', ...
-        'The autocorrelation contains %d non-finite values.', nnz(~isfinite(acf)));
+           'The autocorrelation contains %d non-finite values.', nnz(~isfinite(acf)));
 
     tau = step(1) * (1 + 2 * sum(acf(2:end)));
 end

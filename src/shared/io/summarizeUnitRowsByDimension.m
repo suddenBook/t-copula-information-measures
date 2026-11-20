@@ -1,5 +1,5 @@
 function [summary_by_d, status_counts_by_d] = summarizeUnitRowsByDimension(rows)
-    %SUMMARIZEUNITROWSBYDIMENSION The two per-dimension tables of a unit sweep.
+    % SUMMARIZEUNITROWSBYDIMENSION The two per-dimension tables of a unit sweep.
     %
     % [summary_by_d, status_counts_by_d] = summarizeUnitRowsByDimension(rows) reduces a sweep's flat unit rows (the field set tFitUnit produces) to two tables:
     %
@@ -24,12 +24,12 @@ function [summary_by_d, status_counts_by_d] = summarizeUnitRowsByDimension(rows)
     end
 
     assert(~isempty(rows), 'summarizeUnitRowsByDimension:NoRows', ...
-        'A per-dimension summary needs at least one unit row.');
+           'A per-dimension summary needs at least one unit row.');
     required = {'d', 'p_hat', 'nu_hat', 'numerical_ok', 'heavy_boundary', ...
-        'ambiguous_profile', 'repair_gross', 'status', 'fit_seconds'};
+                'ambiguous_profile', 'repair_gross', 'status', 'fit_seconds'};
     missing = required(~isfield(rows, required));
     assert(isempty(missing), 'summarizeUnitRowsByDimension:MissingField', ...
-        'The unit rows carry no %s field.', strjoin(missing, ', '));
+           'The unit rows carry no %s field.', strjoin(missing, ', '));
 
     d_all = [rows.d];
     dims = unique(d_all);
@@ -38,12 +38,12 @@ function [summary_by_d, status_counts_by_d] = summarizeUnitRowsByDimension(rows)
     n_dims = numel(dims);
     blank = nan(n_dims, 1);
     summary_by_d = table(dims(:), blank, blank, blank, blank, blank, blank, ...
-        blank, blank, blank, blank, blank, blank, blank, blank, blank, blank, ...
-        blank, 'VariableNames', {'d', 'n_units', 'n_ok', ...
-        'median_p_hat', 'q25_p_hat', 'q75_p_hat', 'mean_p_hat', 'sd_p_hat', ...
-        'median_nu_hat', 'q25_nu_hat', 'q75_nu_hat', 'mean_nu_hat', 'sd_nu_hat', ...
-        'fraction_p0', 'fraction_heavy', 'fraction_ambiguous', ...
-        'fraction_repair_gross', 'median_fit_seconds'});
+                         blank, blank, blank, blank, blank, blank, blank, blank, blank, blank, ...
+                         blank, 'VariableNames', {'d', 'n_units', 'n_ok', ...
+                                 'median_p_hat', 'q25_p_hat', 'q75_p_hat', 'mean_p_hat', 'sd_p_hat', ...
+                                 'median_nu_hat', 'q25_nu_hat', 'q75_nu_hat', 'mean_nu_hat', 'sd_nu_hat', ...
+                                 'fraction_p0', 'fraction_heavy', 'fraction_ambiguous', ...
+                                 'fraction_repair_gross', 'median_fit_seconds'});
 
     count_d = zeros(n_dims * numel(statuses), 1);
     count_status = strings(size(count_d));
@@ -75,9 +75,8 @@ function [summary_by_d, status_counts_by_d] = summarizeUnitRowsByDimension(rows)
     end
 
     status_counts_by_d = table(count_d, cellstr(count_status), count_value, ...
-        'VariableNames', {'d', 'status', 'count'});
+                               'VariableNames', {'d', 'status', 'count'});
 end
-
 
 function summary_by_d = localFillStatistics(summary_by_d, k, name, values)
     % The five location and spread columns of one quantity at one dimension.

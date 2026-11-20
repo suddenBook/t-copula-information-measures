@@ -1,4 +1,4 @@
-%VALIDATEDATA Check that loaded data form a numeric 2-D matrix without NaN or Inf.
+% VALIDATEDATA Check that loaded data form a numeric 2-D matrix without NaN or Inf.
 %
 % Raises an assertion error on the first check that fails.
 %

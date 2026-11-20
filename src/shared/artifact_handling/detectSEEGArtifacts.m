@@ -1,4 +1,4 @@
-%DETECTSEEGARTIFACTS Mark artifact samples and flag atypical channels in a multichannel recording.
+% DETECTSEEGARTIFACTS Mark artifact samples and flag atypical channels in a multichannel recording.
 %
 %   [artifact_regions, artifact_info] = detectSEEGArtifacts(X, fs, params)
 %
@@ -37,7 +37,7 @@ function [artifact_regions, artifact_info] = detectSEEGArtifacts(X, fs, params)
         detector_stream = [];
     else
         validateattributes(params.random_seed, {'numeric'}, ...
-            {'scalar', 'integer', 'nonnegative', 'finite'}, mfilename, 'random_seed');
+                           {'scalar', 'integer', 'nonnegative', 'finite'}, mfilename, 'random_seed');
         detector_stream = RandStream('twister', 'Seed', double(params.random_seed));
     end
 
@@ -46,21 +46,21 @@ function [artifact_regions, artifact_info] = detectSEEGArtifacts(X, fs, params)
 
     fprintf('=== Electrophysiology Artifact Detection ===\n');
     fprintf('Data: %d samples x %d channels\n', n_samples, n_channels);
-    fprintf('Duration: %.2f seconds\n', n_samples/fs);
+    fprintf('Duration: %.2f seconds\n', n_samples / fs);
     fprintf('Sampling rate: %d Hz\n', fs);
     %% Calculate robust statistics for the data
     fprintf('\nComputing channel statistics...\n');
     channel_stats = struct();
     validateattributes(params.gradient_percentile, {'numeric'}, ...
-        {'scalar', 'finite', '>', 0, '<', 100}, mfilename, ...
-        'gradient_percentile');
+                       {'scalar', 'finite', '>', 0, '<', 100}, mfilename, ...
+                       'gradient_percentile');
 
     for ch = 1:n_channels
         ch_data = X(:, ch);
 
         % Use median and MAD (Median Absolute Deviation)
         channel_stats(ch).median = median(ch_data);
-        channel_stats(ch).mad = median(abs(ch_data-channel_stats(ch).median));
+        channel_stats(ch).mad = median(abs(ch_data - channel_stats(ch).median));
         channel_stats(ch).robust_std = 1.4826 * channel_stats(ch).mad; % Convert MAD to std equivalent
 
         % Calculate percentiles
@@ -74,8 +74,8 @@ function [artifact_regions, artifact_info] = detectSEEGArtifacts(X, fs, params)
         % Samples and threshold share the centred coordinate, so a constant baseline offset does not change the result.
         centered_data = ch_data - channel_stats(ch).median;
         channel_stats(ch).amp_threshold = max( ...
-            prctile(abs(centered_data), params.percentile_threshold), ...
-            params.mad_factor * channel_stats(ch).robust_std);
+                                              prctile(abs(centered_data), params.percentile_threshold), ...
+                                              params.mad_factor * channel_stats(ch).robust_std);
 
         channel_stats(ch).grad_threshold = ...
             prctile(ch_gradient, params.gradient_percentile);
@@ -85,8 +85,8 @@ function [artifact_regions, artifact_info] = detectSEEGArtifacts(X, fs, params)
     all_data = X(:);
     global_percentiles = prctile(all_data, [0.01, 0.1, 1, 99, 99.9, 99.99]);
     fprintf(['Global percentiles (input amplitude units): 0.01%%=%.1f, ' ...
-        '0.1%%=%.1f, 99.9%%=%.1f, 99.99%%=%.1f\n'], ...
-        global_percentiles(1), global_percentiles(2), global_percentiles(5), global_percentiles(6));
+             '0.1%%=%.1f, 99.9%%=%.1f, 99.99%%=%.1f\n'], ...
+            global_percentiles(1), global_percentiles(2), global_percentiles(5), global_percentiles(6));
     %% Initialize detection results
     artifact_mask = false(n_samples, n_channels);
     artifact_scores = zeros(n_samples, n_channels);
@@ -113,7 +113,7 @@ function [artifact_regions, artifact_info] = detectSEEGArtifacts(X, fs, params)
     end
 
     fprintf('Extreme values: %d (%.3f%% of data)\n', ...
-        extreme_count, 100*extreme_count/(n_samples * n_channels));
+            extreme_count, 100 * extreme_count / (n_samples * n_channels));
     %% 2. Gradient-based detection
     fprintf('Detecting rapid changes...\n');
     gradient_count = 0;
@@ -144,33 +144,33 @@ function [artifact_regions, artifact_info] = detectSEEGArtifacts(X, fs, params)
     end
 
     fprintf('Rapid changes: %d (%.3f%% of data)\n', ...
-        gradient_count, 100*gradient_count/(n_samples * n_channels));
+            gradient_count, 100 * gradient_count / (n_samples * n_channels));
     %% 3. Flatline detection
     fprintf('Detecting flatlines...\n');
     flatline_count = 0;
-    flatline_window_samples = round(params.flatline_window*fs);
+    flatline_window_samples = round(params.flatline_window * fs);
 
     for ch = 1:n_channels
         if ~isempty(params.flatline_relative_std)
             validateattributes(params.flatline_relative_std, {'numeric'}, ...
-                {'scalar', 'positive', 'finite', '<', 1}, mfilename, ...
-                'flatline_relative_std');
+                               {'scalar', 'positive', 'finite', '<', 1}, mfilename, ...
+                               'flatline_relative_std');
             flatline_threshold = params.flatline_relative_std * ...
                 channel_stats(ch).robust_std;
         else
             validateattributes(params.flatline_std, {'numeric'}, ...
-                {'scalar', 'nonnegative', 'finite'}, mfilename, 'flatline_std');
+                               {'scalar', 'nonnegative', 'finite'}, mfilename, 'flatline_std');
             flatline_threshold = params.flatline_std;
         end
         for t = 1:flatline_window_samples: ...
                 n_samples - flatline_window_samples + 1
-            window_data = X(t:t+flatline_window_samples-1, ch);
+            window_data = X(t:t + flatline_window_samples - 1, ch);
             window_std = std(window_data);
 
             if window_std <= flatline_threshold
-                artifact_mask(t:t+flatline_window_samples-1, ch) = true;
-                artifact_scores(t:t+flatline_window_samples-1, ch) = ...
-                    artifact_scores(t:t+flatline_window_samples-1, ch) + 2.0; % High confidence
+                artifact_mask(t:t + flatline_window_samples - 1, ch) = true;
+                artifact_scores(t:t + flatline_window_samples - 1, ch) = ...
+                    artifact_scores(t:t + flatline_window_samples - 1, ch) + 2.0; % High confidence
 
                 % Mark type
                 for idx = t:t + flatline_window_samples - 1
@@ -183,17 +183,17 @@ function [artifact_regions, artifact_info] = detectSEEGArtifacts(X, fs, params)
     end
 
     fprintf('Flatlines: %d samples (%.2f%% of data)\n', ...
-        flatline_count, 100*flatline_count/(n_samples * n_channels));
+            flatline_count, 100 * flatline_count / (n_samples * n_channels));
     %% 4. Sustained artifact detection
     fprintf('Checking for sustained artifacts...\n');
-    sustained_window = round(0.05*fs);  % 50 ms
+    sustained_window = round(0.05 * fs);  % 50 ms
 
     for ch = 1:n_channels
         ch_artifacts = artifact_mask(:, ch);
 
         if any(ch_artifacts)
             % Dilate with a 10 ms structuring element to connect nearby artifacts
-            ch_artifacts_dilated = imdilate(ch_artifacts, ones(round(0.01*fs), 1));
+            ch_artifacts_dilated = imdilate(ch_artifacts, ones(round(0.01 * fs), 1));
 
             % Find continuous regions
             diff_artifacts = diff([0; ch_artifacts_dilated; 0]);
@@ -218,21 +218,21 @@ function [artifact_regions, artifact_info] = detectSEEGArtifacts(X, fs, params)
     end
     %% 5. Multi-channel coherent artifacts
     fprintf('Detecting multi-channel artifacts...\n');
-    correlation_window = round(params.correlation_window*fs);
-    step_size = round(correlation_window/2);
+    correlation_window = round(params.correlation_window * fs);
+    step_size = round(correlation_window / 2);
     multi_channel_times = [];
 
     for t = 1:step_size:n_samples - correlation_window + 1
         % A candidate sample needs more than multi_channel_ratio of the channels flagged at that same sample.
         % Requiring simultaneity keeps strongly correlated physiological LFP from being marked as one continuous global artifact.
-        window_artifacts = artifact_mask(t:t+correlation_window-1, :);
+        window_artifacts = artifact_mask(t:t + correlation_window - 1, :);
         candidate_offsets = find(sum(window_artifacts, 2) ...
-            > n_channels * params.multi_channel_ratio);
+                                 > n_channels * params.multi_channel_ratio);
 
         if ~isempty(candidate_offsets)
             % Check correlation among affected channels
             affected_ch_idx = find(any( ...
-                window_artifacts(candidate_offsets, :), 1));
+                                       window_artifacts(candidate_offsets, :), 1));
 
             if length(affected_ch_idx) >= 3
                 % Up to five affected channels, drawn from the private stream when random_seed is set
@@ -241,11 +241,11 @@ function [artifact_regions, artifact_info] = detectSEEGArtifacts(X, fs, params)
                     sample_order = randperm(length(affected_ch_idx), sample_size);
                 else
                     sample_order = randperm(detector_stream, ...
-                        length(affected_ch_idx), sample_size);
+                                            length(affected_ch_idx), sample_size);
                 end
                 sample_idx = affected_ch_idx(sample_order);
 
-                window_data = X(t:t+correlation_window-1, sample_idx);
+                window_data = X(t:t + correlation_window - 1, sample_idx);
 
                 % Remove mean to focus on correlation
                 window_data_centered = bsxfun(@minus, window_data, mean(window_data, 1));
@@ -261,7 +261,7 @@ function [artifact_regions, artifact_info] = detectSEEGArtifacts(X, fs, params)
                     if mean_corr > params.correlation_threshold
                         candidate_times = t + candidate_offsets - 1;
                         multi_channel_times = [multi_channel_times, ...
-                            candidate_times(:).']; %#ok<AGROW>
+                                               candidate_times(:).']; %#ok<AGROW>
 
                         % Confirm only the simultaneous candidate samples, not every sample of the window.
                         artifact_scores(candidate_times, :) = ...
@@ -281,7 +281,7 @@ function [artifact_regions, artifact_info] = detectSEEGArtifacts(X, fs, params)
 
     multi_channel_times = unique(multi_channel_times);
     fprintf('Found %d samples with correlated multi-channel artifacts\n', ...
-        length(multi_channel_times));
+            length(multi_channel_times));
     %% 6. Powerline interference
     fprintf('Checking powerline interference...\n');
     powerline_channels = [];
@@ -292,18 +292,18 @@ function [artifact_regions, artifact_info] = detectSEEGArtifacts(X, fs, params)
 
     for ch = 1:n_channels
         [psd, f] = pwelch(X(:, ch), hamming(welch_window_samples), ...
-            welch_overlap_samples, welch_nfft, fs);
+                          welch_overlap_samples, welch_nfft, fs);
 
         for pf = params.powerline_freq
-            [~, f_idx] = min(abs(f-pf));
+            [~, f_idx] = min(abs(f - pf));
 
             % SNR of the bin nearest pf against the median of up to five bins on each side
             signal_power = psd(f_idx);
-            noise_indices = max(1, f_idx-5):min(length(f), f_idx+5);
+            noise_indices = max(1, f_idx - 5):min(length(f), f_idx + 5);
             noise_indices(noise_indices == f_idx) = [];
             noise_power = median(psd(noise_indices));
 
-            snr_db = 10 * log10(signal_power/noise_power);
+            snr_db = 10 * log10(signal_power / noise_power);
 
             if snr_db > params.powerline_snr
                 powerline_channels = [powerline_channels, ch];
@@ -357,10 +357,10 @@ function [artifact_regions, artifact_info] = detectSEEGArtifacts(X, fs, params)
             merged_ends = [];
 
             for i = 1:length(region_starts) - 1
-                if region_starts(i+1) - region_ends(i) > params.merge_gap * fs
+                if region_starts(i + 1) - region_ends(i) > params.merge_gap * fs
                     % Save current region and start new one
                     merged_ends = [merged_ends; region_ends(i)];
-                    merged_starts = [merged_starts; region_starts(i+1)];
+                    merged_starts = [merged_starts; region_starts(i + 1)];
                 end
             end
             merged_ends = [merged_ends; region_ends(end)];
@@ -368,7 +368,7 @@ function [artifact_regions, artifact_info] = detectSEEGArtifacts(X, fs, params)
             % Convert to time
             for i = 1:length(merged_starts)
                 artifact_regions.global{i} = [time_vector(merged_starts(i)), ...
-                    time_vector(merged_ends(i))];
+                                              time_vector(merged_ends(i))];
             end
         end
     end
@@ -402,9 +402,9 @@ function [artifact_regions, artifact_info] = detectSEEGArtifacts(X, fs, params)
                 merged_ends = [];
 
                 for i = 1:length(ch_starts) - 1
-                    if ch_starts(i+1) - ch_ends(i) > params.merge_gap * fs
+                    if ch_starts(i + 1) - ch_ends(i) > params.merge_gap * fs
                         merged_ends = [merged_ends; ch_ends(i)];
-                        merged_starts = [merged_starts; ch_starts(i+1)];
+                        merged_starts = [merged_starts; ch_starts(i + 1)];
                     end
                 end
                 merged_ends = [merged_ends; ch_ends(end)];
@@ -413,7 +413,7 @@ function [artifact_regions, artifact_info] = detectSEEGArtifacts(X, fs, params)
                 channel_regions = zeros(length(merged_starts), 2);
                 for i = 1:length(merged_starts)
                     channel_regions(i, :) = [time_vector(merged_starts(i)), ...
-                        time_vector(merged_ends(i))];
+                                             time_vector(merged_ends(i))];
                 end
                 artifact_regions.channel{ch} = channel_regions;
             end
@@ -448,22 +448,22 @@ function [artifact_regions, artifact_info] = detectSEEGArtifacts(X, fs, params)
         finite_kurtosis_values = kurt_values(finite_kurtosis);
         median_kurt = median(finite_kurtosis_values);
         mad_kurt = 1.4826 * median( ...
-            abs(finite_kurtosis_values - median_kurt));
+                                   abs(finite_kurtosis_values - median_kurt));
     else
         median_kurt = NaN;
         mad_kurt = NaN;
     end
     if isfinite(mad_kurt) && mad_kurt > 0
         abnormal_kurt_channels = find(finite_kurtosis ...
-            & abs(kurt_values - median_kurt) ...
-            > params.kurtosis_mad_factor * mad_kurt);
+                                      & abs(kurt_values - median_kurt) ...
+                                      > params.kurtosis_mad_factor * mad_kurt);
     else
         abnormal_kurt_channels = [];
     end
     if any(~finite_kurtosis)
         fprintf(['Non-finite kurtosis diagnostics (%d channels) are excluded from ' ...
-            'the recording-level median/MAD reference and are not themselves ' ...
-            'classified as abnormal-kurtosis outliers.\n'], nnz(~finite_kurtosis));
+                 'the recording-level median/MAD reference and are not themselves ' ...
+                 'classified as abnormal-kurtosis outliers.\n'], nnz(~finite_kurtosis));
     end
 
     if ~isempty(abnormal_kurt_channels)
@@ -485,7 +485,7 @@ function [artifact_regions, artifact_info] = detectSEEGArtifacts(X, fs, params)
     mad_corr = 1.4826 * median(abs(mean_abs_corr - median_corr));
     if mad_corr > 0
         isolated_channels = find(mean_abs_corr < median_corr - params.isolation_mad_factor * mad_corr ...
-            | mean_abs_corr < params.isolation_abs_threshold);
+                                 | mean_abs_corr < params.isolation_abs_threshold);
     else
         isolated_channels = find(mean_abs_corr < params.isolation_abs_threshold);
     end
@@ -508,11 +508,11 @@ function [artifact_regions, artifact_info] = detectSEEGArtifacts(X, fs, params)
 
     if n_redundant_pairs > 0
         fprintf('Redundant channel pairs (%d) with |corr| > %.2f:\n', ...
-            n_redundant_pairs, params.redundancy_threshold);
+                n_redundant_pairs, params.redundancy_threshold);
         for p = 1:min(n_redundant_pairs, 10)
             fprintf('  Ch %d -- Ch %d  (|r| = %.4f)\n', ...
-                redundant_pairs_idx(p,1), redundant_pairs_idx(p,2), ...
-                R(redundant_pairs_idx(p,1), redundant_pairs_idx(p,2)));
+                    redundant_pairs_idx(p, 1), redundant_pairs_idx(p, 2), ...
+                    R(redundant_pairs_idx(p, 1), redundant_pairs_idx(p, 2)));
         end
         if n_redundant_pairs > 10
             fprintf('  ... and %d more pairs\n', n_redundant_pairs - 10);
@@ -533,14 +533,14 @@ function [artifact_regions, artifact_info] = detectSEEGArtifacts(X, fs, params)
                 ch_remove = tied;
             end
             redundant_channels = [redundant_channels; ch_remove]; %#ok<AGROW>
-            keep = remaining(:,1) ~= ch_remove & remaining(:,2) ~= ch_remove;
+            keep = remaining(:, 1) ~= ch_remove & remaining(:, 2) ~= ch_remove;
             remaining = remaining(keep, :);
         end
         redundant_channels = sort(redundant_channels);
 
         fprintf(['Redundancy diagnostic candidates (%d; retained automatically ' ...
-            'unless separately abnormal-kurtosis flagged): %s\n'], ...
-            length(redundant_channels), mat2str(redundant_channels'));
+                 'unless separately abnormal-kurtosis flagged): %s\n'], ...
+                length(redundant_channels), mat2str(redundant_channels'));
         for i = 1:length(redundant_channels)
             channel_artifact_pct(redundant_channels(i)) = 100;
             flag_redundant(redundant_channels(i)) = true;
@@ -548,7 +548,7 @@ function [artifact_regions, artifact_info] = detectSEEGArtifacts(X, fs, params)
     else
         redundant_channels = [];
         fprintf('No redundant channel pairs (threshold |corr| > %.2f)\n', ...
-            params.redundancy_threshold);
+                params.redundancy_threshold);
     end
 
     % Every channel with a channel-level flag; the field name all_quality_rejected does not mean these channels are removed.
@@ -557,7 +557,7 @@ function [artifact_regions, artifact_info] = detectSEEGArtifacts(X, fs, params)
 
     %% 9. Summary report
     fprintf('\n=== Artifact Detection Summary ===\n');
-    fprintf('Total recording time: %.2f seconds\n', n_samples/fs);
+    fprintf('Total recording time: %.2f seconds\n', n_samples / fs);
 
     % Global artifacts
     fprintf('\nGlobal artifact regions: %d\n', length(artifact_regions.global));
@@ -566,18 +566,18 @@ function [artifact_regions, artifact_info] = detectSEEGArtifacts(X, fs, params)
         duration = artifact_regions.global{i}(2) - artifact_regions.global{i}(1);
         total_global_artifact_time = total_global_artifact_time + duration;
         fprintf('Region %d: %.3f - %.3f s (%.3f s)\n', ...
-            i, artifact_regions.global{i}(1), artifact_regions.global{i}(2), duration);
+                i, artifact_regions.global{i}(1), artifact_regions.global{i}(2), duration);
     end
 
     fprintf('\nGlobal artifact time: %.2f s (%.1f%%)\n', ...
-        total_global_artifact_time, total_global_artifact_time/(n_samples / fs)*100);
+            total_global_artifact_time, total_global_artifact_time / (n_samples / fs) * 100);
 
     % Temporal artifact load from the true marked fraction, not the detector score.
     fprintf(['\nPer-channel temporal artifact load (fraction of samples marked by ' ...
-        'the temporal detector):\n']);
+             'the temporal detector):\n']);
     fprintf('Min: %.1f%%, Max: %.1f%%, Mean: %.1f%%, Median: %.1f%%\n', ...
-        min(temporal_artifact_pct), max(temporal_artifact_pct), ...
-        mean(temporal_artifact_pct), median(temporal_artifact_pct));
+            min(temporal_artifact_pct), max(temporal_artifact_pct), ...
+            mean(temporal_artifact_pct), median(temporal_artifact_pct));
 
     % Highest temporal loads
     [sorted_pct, sorted_idx] = sort(temporal_artifact_pct, 'descend');
@@ -587,17 +587,25 @@ function [artifact_regions, artifact_info] = detectSEEGArtifacts(X, fs, params)
             ch = sorted_idx(i);
             n_regions = size(artifact_regions.channel{ch}, 1);
             fprintf('Channel %3d: %5.1f%% artifact samples (%d regions)', ...
-                ch, sorted_pct(i), n_regions);
+                    ch, sorted_pct(i), n_regions);
 
             % Add artifact type summary
             ch_types = artifact_types(:, ch);
             % Filter out empty cells and convert to cell array of strings
             ch_types_nonempty = ch_types(~cellfun(@isempty, ch_types));
             type_summary = {};
-            if ~isempty(ch_types_nonempty) && any(contains(ch_types_nonempty, 'EXT')), type_summary{end+1} = 'Extreme'; end
-            if ~isempty(ch_types_nonempty) && any(contains(ch_types_nonempty, 'GRAD')), type_summary{end+1} = 'Gradient'; end
-            if ~isempty(ch_types_nonempty) && any(contains(ch_types_nonempty, 'FLAT')), type_summary{end+1} = 'Flatline'; end
-            if ~isempty(ch_types_nonempty) && any(contains(ch_types_nonempty, 'SUST')), type_summary{end+1} = 'Sustained'; end
+            if ~isempty(ch_types_nonempty) && any(contains(ch_types_nonempty, 'EXT'))
+                type_summary{end + 1} = 'Extreme';
+            end
+            if ~isempty(ch_types_nonempty) && any(contains(ch_types_nonempty, 'GRAD'))
+                type_summary{end + 1} = 'Gradient';
+            end
+            if ~isempty(ch_types_nonempty) && any(contains(ch_types_nonempty, 'FLAT'))
+                type_summary{end + 1} = 'Flatline';
+            end
+            if ~isempty(ch_types_nonempty) && any(contains(ch_types_nonempty, 'SUST'))
+                type_summary{end + 1} = 'Sustained';
+            end
             if ~isempty(type_summary)
                 fprintf('[%s]', strjoin(type_summary, ', '));
             end

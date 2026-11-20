@@ -1,6 +1,6 @@
 function out = tInformationMeasuresFromLogdets(d, p, logdet_R, ...
-        sum_logdet_minors, opts)
-    %TINFORMATIONMEASURESFROMLOGDETS Gaussian and Student-t information measures of one unit from its two log-determinants.
+                                               sum_logdet_minors, opts)
+    % TINFORMATIONMEASURESFROMLOGDETS Gaussian and Student-t information measures of one unit from its two log-determinants.
     %
     % informationMeasuresT(R, p) computes the Gaussian reference from R with one Cholesky factorisation of R and one of each of its d leave-one-out minors.
     % The Phase 2 unit row already carries the two resulting log-determinants, logdet_R and sum_logdet_minors, which unitCorrelationFromTau takes from the same gaussianInformationMeasures call.
@@ -46,15 +46,15 @@ function out = tInformationMeasuresFromLogdets(d, p, logdet_R, ...
     pct_min_denominator = localOption(opts, 'pct_min_abs_denominator', 1e-3);
     o_min_cancellation_ratio = localOption(opts, 'o_pct_min_cancellation_ratio', 0.1);
     validateattributes(pct_min_denominator, {'numeric'}, ...
-        {'scalar', 'real', 'finite', 'nonnegative'}, mfilename, ...
-        'opts.pct_min_abs_denominator');
+                       {'scalar', 'real', 'finite', 'nonnegative'}, mfilename, ...
+                       'opts.pct_min_abs_denominator');
     validateattributes(o_min_cancellation_ratio, {'numeric'}, ...
-        {'scalar', 'real', 'finite', '>=', 0, '<=', 1}, mfilename, ...
-        'opts.o_pct_min_cancellation_ratio');
+                       {'scalar', 'real', 'finite', '>=', 0, '<=', 1}, mfilename, ...
+                       'opts.o_pct_min_cancellation_ratio');
 
     out = localNanOut(d, p, pct_min_denominator, o_min_cancellation_ratio);
     if ~(isfinite(p) && p >= 0 && isfinite(logdet_R) && isfinite(sum_logdet_minors))
-        return;
+        return
     end
 
     TC_gauss  = -0.5 * logdet_R;
@@ -82,11 +82,10 @@ function out = tInformationMeasuresFromLogdets(d, p, logdet_R, ...
     out.O_pct_cancellation_ratio = ratio_gauss;
     out.O_pct_cancellation_ratio_t = ratio_t;
     out = localPack(out, 'O', O_gauss, O_t, pct_min_denominator, ...
-        ratio_gauss >= o_min_cancellation_ratio, ...
-        ratio_t >= o_min_cancellation_ratio);
+                    ratio_gauss >= o_min_cancellation_ratio, ...
+                    ratio_t >= o_min_cancellation_ratio);
     out.valid = true;
 end
-
 
 function value = localOption(opts, name, default)
     % The value of opts.(name) when that field is present and non-empty, else the default, as in tFitDefaultOptions.
@@ -96,9 +95,8 @@ function value = localOption(opts, name, default)
     end
 end
 
-
 function out = localPack(out, name, gauss_value, t_value, min_denominator, ...
-        extra_stable_gauss, extra_stable_t)
+                         extra_stable_gauss, extra_stable_t)
     % One measure against both percentage denominators, in the field order of informationMeasuresT, so a row from either entry point reads the same.
     out.([name '_gauss']) = gauss_value;
     out.([name '_t']) = t_value;
@@ -106,7 +104,7 @@ function out = localPack(out, name, gauss_value, t_value, min_denominator, ...
     out.([name '_delta_nats']) = delta;
 
     [reportable, status_code] = percentageStatus( ...
-        gauss_value, min_denominator, extra_stable_gauss);
+                                                 gauss_value, min_denominator, extra_stable_gauss);
     out.([name '_pct_denominator']) = gauss_value;
     out.([name '_pct_reportable']) = reportable;
     out.([name '_pct_status_code']) = status_code;
@@ -117,7 +115,7 @@ function out = localPack(out, name, gauss_value, t_value, min_denominator, ...
     end
 
     [reportable_t, status_code_t] = percentageStatus( ...
-        t_value, min_denominator, extra_stable_t);
+                                                     t_value, min_denominator, extra_stable_t);
     out.([name '_pct_denominator_t']) = t_value;
     out.([name '_pct_reportable_t']) = reportable_t;
     out.([name '_pct_status_code_t']) = status_code_t;
@@ -128,15 +126,14 @@ function out = localPack(out, name, gauss_value, t_value, min_denominator, ...
     end
 end
 
-
 function out = localNanOut(d, p, min_denominator, o_min_cancellation_ratio)
     % Every field, in the order of localPack, at its "nothing computed" value.
     % The MI fields exist at every d and stay NaN above d = 2, so the field names are the same at every dimension and for valid and invalid units alike.
     out = struct('d', d, 'p', p, 'nu', 1 / p, 'kappa', NaN, 'kappa_margin', NaN, ...
-        'pct_min_abs_denominator_nats', min_denominator, ...
-        'O_pct_min_cancellation_ratio', o_min_cancellation_ratio, ...
-        'O_pct_cancellation_ratio', NaN, ...
-        'O_pct_cancellation_ratio_t', NaN, 'valid', false);
+                 'pct_min_abs_denominator_nats', min_denominator, ...
+                 'O_pct_min_cancellation_ratio', o_min_cancellation_ratio, ...
+                 'O_pct_cancellation_ratio', NaN, ...
+                 'O_pct_cancellation_ratio_t', NaN, 'valid', false);
     for name = {'MI', 'TC', 'DTC', 'O'}
         n = name{1};
         out.([n '_gauss']) = NaN;

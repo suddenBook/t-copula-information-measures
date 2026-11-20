@@ -1,5 +1,5 @@
 function time_tau = diffusionRadialTime(nu, D)
-    %DIFFUSIONRADIALTIME Inverse radial L2 spectral gap of the Student-t diffusion, in tau.
+    % DIFFUSIONRADIALTIME Inverse radial L2 spectral gap of the Student-t diffusion, in tau.
     %
     % time_tau = diffusionRadialTime(nu, D) is 1/gamma_rad, the inverse radial spectral gap of the Student-t diffusion with the isotropic drift -X/tau at dimension D.
     % With m = nu + D - 2 it is
@@ -24,7 +24,7 @@ function time_tau = diffusionRadialTime(nu, D)
     end
 
     m = nu + D - 2;
-    time_tau = 4 * m ./ nu .^ 2;
+    time_tau = 4 * m ./ nu.^2;
     lighter = nu > 4;
     time_tau(lighter) = m(lighter) ./ (2 * (nu(lighter) - 2));
     time_tau(isinf(nu)) = 0.5;

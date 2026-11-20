@@ -1,5 +1,5 @@
 function seed = channelGroupSeed(seed_base, d)
-    %CHANNELGROUPSEED Deterministic RandStream seed for a d-dimensional channel-group sample.
+    % CHANNELGROUPSEED Deterministic RandStream seed for a d-dimensional channel-group sample.
     %
     % This is the only source of the channel-group seed.
     % Phase 2 draws a recording's channel groups at d >= 3 with sampleChannelGroups(n_channels, d, n_groups, channelGroupSeed(seed_base, d)), and later phases read those groups from its output.

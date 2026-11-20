@@ -1,5 +1,5 @@
 function tau = kendallTauKnight(x, y)
-    %KENDALLTAUKNIGHT Kendall's tau-b by a vectorised version of Knight's merge-sort algorithm, in O(n log^2 n).
+    % KENDALLTAUKNIGHT Kendall's tau-b by a vectorised version of Knight's merge-sort algorithm, in O(n log^2 n).
     %
     % An exact drop-in for MATLAB's corr(x, y, 'type', 'Kendall'): it returns the tie-corrected tau-b and agrees with corr to floating precision (<= 1e-12), including on heavily tied data.
     % The cost is O(n log^2 n) (a vectorised block merge sort) instead of corr's O(n^2), so it uses every row of a full recording (n ~ 3e5) in well under a second, where the O(n^2) form takes hours.
@@ -34,13 +34,15 @@ function tau = kendallTauKnight(x, y)
     n = numel(x);
     if numel(y) ~= n
         error('kendallTauKnight:SizeMismatch', ...
-            'x and y must have equal length (got %d and %d).', n, numel(y));
+              'x and y must have equal length (got %d and %d).', n, numel(y));
     end
     if n < 2
-        tau = NaN; return;                 % corr(...,'Kendall') is NaN for n < 2
+        tau = NaN;
+        return                  % corr(...,'Kendall') is NaN for n < 2
     end
     if ~(all(isfinite(x)) && all(isfinite(y)))
-        tau = NaN; return;                 % NaN/Inf row -> NaN, as corr's default does
+        tau = NaN;
+        return                  % NaN/Inf row -> NaN, as corr's default does
     end
 
     n0 = n * (n - 1) / 2;
@@ -69,7 +71,6 @@ function tau = kendallTauKnight(x, y)
     end
 end
 
-
 function s = local_run_pairs(change, n)
     % Sum of t(t-1)/2 over the maximal runs of equal consecutive elements, where `change` (logical, length n-1) is true wherever consecutive elements differ.
     b = find(change);
@@ -79,13 +80,15 @@ function s = local_run_pairs(change, n)
     s = sum(t .* (t - 1) / 2);
 end
 
-
 function cnt = local_count_inversions(v)
     % Number of strict inversions (pairs i < j with v(i) > v(j)) of the finite numeric column v, by a vectorised bottom-up merge sort.
     % The cost is O(n log^2 n): O(log n) passes, each a column-wise sort (O(n log blk)) plus a cumsum over the padded array.
     n = numel(v);
-    if n < 2, cnt = 0; return; end
-    N = 2 ^ ceil(log2(n));
+    if n < 2
+        cnt = 0;
+        return
+    end
+    N = 2^ceil(log2(n));
     a = [v; inf(N - n, 1)];        % +Inf sentinels (>= any value) add zero inversions
     cnt = 0;
     w = 1;                         % current run half-width

@@ -1,4 +1,4 @@
-%ENABLEFIGUREAUTOMAXIMIZE Maximize every figure created for the rest of the MATLAB session.
+% ENABLEFIGUREAUTOMAXIMIZE Maximize every figure created for the rest of the MATLAB session.
 %
 %   listener_handle = enableFigureAutoMaximize()
 %
@@ -23,15 +23,14 @@ function listener_handle = enableFigureAutoMaximize()
     end
 
     listener_handle = addlistener(groot, 'ObjectChildAdded', ...
-        @(~, evt) localMaximizeIfFigure(evt.Child));
+                                  @(~, evt) localMaximizeIfFigure(evt.Child));
 
 end
-
 
 function localMaximizeIfFigure(h)
     % Undock and maximize h when it is a figure.
     if ~isa(h, 'matlab.ui.Figure')
-        return;
+        return
     end
     try
         h.WindowStyle = 'normal';

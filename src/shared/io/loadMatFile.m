@@ -1,4 +1,4 @@
-%LOADMATFILE Load the data matrix of a .mat file by its variable name.
+% LOADMATFILE Load the data matrix of a .mat file by its variable name.
 %
 % The data are the first of the variables X, sampledData, X_gauss and X_pvii that the file holds; a file with none of them raises an error.
 % The sampling rate is the file's fs, else options.fs, else 250 Hz with a warning.

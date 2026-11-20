@@ -1,5 +1,5 @@
 function id = settingsIdentity(s)
-    %SETTINGSIDENTITY The SHA-256 identity of the settings that define a phase's work.
+    % SETTINGSIDENTITY The SHA-256 identity of the settings that define a phase's work.
     %
     % id = settingsIdentity(s) hashes one phase's scientific configuration, so that two runs doing the same work share one identity and a run doing different work does not.
     % Every resume compares the identity of its own settings with the one the artifact on disk carries, and refuses to reuse or merge an artifact whose settings are not this run's: a checkpoint keyed by a chunk, a replicate or a cell number describes other numbers under the same index as soon as a grid, a size or a fit option moves.
@@ -22,7 +22,6 @@ function id = settingsIdentity(s)
 
     id = sha256Json(localCanonical(s));
 end
-
 
 function value = localCanonical(value)
     % Order every struct by field name and normalise the classes whose JSON spelling depends on the class rather than on the value.

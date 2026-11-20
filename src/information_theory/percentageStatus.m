@@ -1,6 +1,6 @@
 function [reportable, statusCode] = percentageStatus( ...
-        denominator, minDenominator, extraStable)
-    %PERCENTAGESTATUS Suppression rule for one percentage denominator.
+                                                     denominator, minDenominator, extraStable)
+    % PERCENTAGESTATUS Suppression rule for one percentage denominator.
     %
     % Each information difference is expressed against two denominators, the Gaussian value of the same measure and the fitted value.
     % Each denominator carries its own suppression rule, because they fail in different places: the fitted value of the O-information can vanish where the Gaussian value does not.

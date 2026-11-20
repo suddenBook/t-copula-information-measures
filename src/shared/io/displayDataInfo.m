@@ -1,4 +1,4 @@
-%DISPLAYDATAINFO Print a summary of loaded data and their metadata.
+% DISPLAYDATAINFO Print a summary of loaded data and their metadata.
 %
 % Prints the file, its type, the matrix size, and, when the metadata carry them, the sampling rate, the duration and the epoch layout.
 %
@@ -15,13 +15,13 @@ function displayDataInfo(data, metadata)
 
     if isfield(metadata, 'fs') && ~isempty(metadata.fs)
         fprintf('Sampling rate: %.1f Hz\n', metadata.fs);
-        fprintf('Duration: %.2f seconds\n', size(data, 1)/metadata.fs);
+        fprintf('Duration: %.2f seconds\n', size(data, 1) / metadata.fs);
     end
 
     if isfield(metadata, 'epochInfo') && metadata.epochInfo.hasEpochs
         fprintf('Epochs: %d × %d samples\n', ...
-            metadata.epochInfo.numEpochs, ...
-            metadata.epochInfo.epochLength);
+                metadata.epochInfo.numEpochs, ...
+                metadata.epochInfo.epochLength);
     end
     fprintf('========================\n\n');
 

@@ -1,5 +1,5 @@
 function ll = tCopulaLoglik(p, plan, Rinfo, cache)
-    %TCOPULALOGLIK Total Student-t copula log-likelihood of a pseudo-observation matrix.
+    % TCOPULALOGLIK Total Student-t copula log-likelihood of a pseudo-observation matrix.
     %
     % ll = tCopulaLoglik(p, plan, Rinfo) evaluates the t-copula log-likelihood at shape parameter p = 1/nu (p = 0 is the Gaussian copula), summed over all rows, for the pseudo-observations prepared by tCopulaQuantilePlan and the fixed correlation matrix packed in Rinfo:
     %   Rinfo.Lr       upper-triangular Cholesky factor with R = Lr' * Lr
@@ -30,7 +30,7 @@ function ll = tCopulaLoglik(p, plan, Rinfo, cache)
     n = plan.n;
     d = plan.d;
     assert(Rinfo.d == d, 'tCopulaLoglik:DimensionMismatch', ...
-        'The correlation factor is %d-dimensional but the plan has d = %d.', Rinfo.d, d);
+           'The correlation factor is %d-dimensional but the plan has d = %d.', Rinfo.d, d);
 
     absz = [];
     % The cache is an exact shortcut for the recording's row count at the grid nodes; any other row count (a channel set with fewer complete rows) or an off-grid p takes the direct route below, the same computation without the table.
@@ -46,23 +46,23 @@ function ll = tCopulaLoglik(p, plan, Rinfo, cache)
     Z = absz(plan.q_index);
     Z(plan.negate) = -Z(plan.negate);
     W = Z / Rinfo.Lr;                       % rows z_i Lr^{-1}, so sum(W.^2, 2) = z_i R^{-1} z_i'
-    S = sum(W .^ 2, 2);
+    S = sum(W.^2, 2);
 
     if p == 0
-        ll = -0.5 * n * Rinfo.logdetR - 0.5 * (sum(S) - sum(plan.q_count .* absz .^ 2));
+        ll = -0.5 * n * Rinfo.logdetR - 0.5 * (sum(S) - sum(plan.q_count .* absz.^2));
     else
         nu = 1 / p;
         % c(nu, d) = [log G(nu/2 + d/2) - log G(nu/2)] - d [log G(nu/2 + 1/2) - log G(nu/2)], assembled from log-gamma ratios to avoid the large-nu cancellation of three gammaln values.
         cNu = tLogGammaRatio(nu / 2, d) - d * tLogGammaRatio(nu / 2, 1);
         ll = n * cNu - 0.5 * n * Rinfo.logdetR ...
             - (nu + d) / 2 * sum(log1p(S / nu)) ...
-            + (nu + 1) / 2 * sum(plan.q_count .* log1p(absz .^ 2 / nu));
+            + (nu + 1) / 2 * sum(plan.q_count .* log1p(absz.^2 / nu));
     end
 
     if ~isfinite(ll)
         error('tCopulaLoglik:NonFiniteLoglik', ...
-            ['The t-copula log-likelihood is not finite at p = %.6g (nu = %.6g), ' ...
-            'n = %d, d = %d: %d non-finite radii and %d non-finite quantiles.'], ...
-            p, 1 / p, n, d, nnz(~isfinite(S)), nnz(~isfinite(absz)));
+              ['The t-copula log-likelihood is not finite at p = %.6g (nu = %.6g), ' ...
+               'n = %d, d = %d: %d non-finite radii and %d non-finite quantiles.'], ...
+              p, 1 / p, n, d, nnz(~isfinite(S)), nnz(~isfinite(absz)));
     end
 end

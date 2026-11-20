@@ -1,5 +1,5 @@
 function [U, row_mask, diag] = computeCopulaPseudoObservations(X, varargin)
-    %COMPUTECOPULAPSEUDOOBSERVATIONS Copula pseudo-observations of the complete-case rows, ranked on that same sample.
+    % COMPUTECOPULAPSEUDOOBSERVATIONS Copula pseudo-observations of the complete-case rows, ranked on that same sample.
     %
     % Complete-case rows are selected first, then each column is ranked on that sample (average ranks for ties), giving U = rank / (n + 1).
     % Selecting rows before ranking makes U the pseudo-observations of exactly the sample that is fitted.
@@ -33,7 +33,7 @@ function [U, row_mask, diag] = computeCopulaPseudoObservations(X, varargin)
             row_mask = all(isfinite(X), 2);
         otherwise
             error('computeCopulaPseudoObservations:BadRows', ...
-                'Rows="%s" is not supported. Use Rows="complete".', rows_mode);
+                  'Rows="%s" is not supported. Use Rows="complete".', rows_mode);
     end
 
     X_fit = X(row_mask, :);
@@ -42,8 +42,8 @@ function [U, row_mask, diag] = computeCopulaPseudoObservations(X, varargin)
         U = nan(n, d);
         diag = makeDiagnostics(X, row_mask, nan(1, d), nan(1, d), true);
         diag.note = sprintf('Too few complete rows for copula pseudo-observations: %d < %d.', ...
-            n, min_samples);
-        return;
+                            n, min_samples);
+        return
     end
 
     U = nan(n, d);
@@ -66,7 +66,6 @@ function [U, row_mask, diag] = computeCopulaPseudoObservations(X, varargin)
     diag.rows_mode = rows_mode;
 end
 
-
 function diag = makeDiagnostics(X, row_mask, tie_fraction, max_tie_count, too_few)
     % The row-selection and tie diagnostics shared by both return paths.
     diag = struct();
@@ -79,7 +78,6 @@ function diag = makeDiagnostics(X, row_mask, tie_fraction, max_tie_count, too_fe
     diag.too_few_samples = too_few;
     diag.note = '';
 end
-
 
 function [ranks, tie_fraction, max_tie_count, n_unique] = averageRanksWithTieStats(x)
     % Average ranks of x (tied values share the mean of their positions), with the fraction of observations in tied blocks, the largest tied block and the number of distinct values.

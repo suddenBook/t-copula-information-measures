@@ -1,5 +1,5 @@
 function shard = getEnvShard(name)
-    %GETENVSHARD Strict "k/N" shard-selector parser for an environment variable.
+    % GETENVSHARD Strict "k/N" shard-selector parser for an environment variable.
     %
     % shard = getEnvShard(name) returns [k N] when the variable holds "k/N" with integers 1 <= k <= N, and [1 1] (the whole sweep) when it is unset or empty.
     % Any other value is an error, so a typo cannot silently run the whole sweep in one job.
@@ -16,12 +16,12 @@ function shard = getEnvShard(name)
     raw = strtrim(string(getenv(name)));
     if strlength(raw) == 0
         shard = [1 1];
-        return;
+        return
     end
     tokens = regexp(raw, '^(\d+)/(\d+)$', 'tokens', 'once');
     assert(~isempty(tokens), 'getEnvShard:InvalidValue', ...
-        '%s must be "k/N" with integers 1 <= k <= N; got "%s".', name, raw);
+           '%s must be "k/N" with integers 1 <= k <= N; got "%s".', name, raw);
     shard = [str2double(tokens{1}), str2double(tokens{2})];
     assert(shard(1) >= 1 && shard(1) <= shard(2), 'getEnvShard:InvalidValue', ...
-        '%s must be "k/N" with integers 1 <= k <= N; got "%s".', name, raw);
+           '%s must be "k/N" with integers 1 <= k <= N; got "%s".', name, raw);
 end

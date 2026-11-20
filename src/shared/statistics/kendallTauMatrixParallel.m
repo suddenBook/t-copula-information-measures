@@ -1,5 +1,5 @@
 function tau = kendallTauMatrixParallel(X, n_workers)
-    %KENDALLTAUMATRIXPARALLEL d x d Kendall tau-b matrix, one channel pair per worker.
+    % KENDALLTAUMATRIXPARALLEL d x d Kendall tau-b matrix, one channel pair per worker.
     %
     % The same matrix as kendallTauMatrix, computed by the same kendallTauKnight call on the same rows, with the nested pair loop flattened into one parfor over the d(d-1)/2 pairs.
     % The worker count is a pure scheduling choice: each pair is an independent call, so the matrix cannot depend on it.
@@ -26,8 +26,8 @@ function tau = kendallTauMatrixParallel(X, n_workers)
     d = size(X, 2);
     if d < 2
         error('kendallTauMatrixParallel:TooFewChannels', ...
-            ['A Kendall matrix needs at least two channels; X is %d x %d ' ...
-            '([samples x channels]).'], size(X, 1), d);
+              ['A Kendall matrix needs at least two channels; X is %d x %d ' ...
+               '([samples x channels]).'], size(X, 1), d);
     end
 
     pairs = nchoosek(1:d, 2);

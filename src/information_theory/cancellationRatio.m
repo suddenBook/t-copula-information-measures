@@ -1,5 +1,5 @@
 function ratio = cancellationRatio(oValue, tcValue, dtcValue)
-    %CANCELLATIONRATIO Cancellation ratio |O| / (|TC| + |DTC|) of the O-information on one denominator's scale.
+    % CANCELLATIONRATIO Cancellation ratio |O| / (|TC| + |DTC|) of the O-information on one denominator's scale.
     %
     % The O-information is the difference TC - DTC of two much larger positive quantities, so |O| can be numerically tiny while still clearing the absolute denominator floor.
     % This ratio detects that case, which the floor alone does not.

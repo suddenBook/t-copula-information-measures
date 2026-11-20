@@ -1,5 +1,5 @@
 function G = gaussianInformationMeasures(R)
-    %GAUSSIANINFORMATIONMEASURES Closed-form Gaussian-copula information measures from the log-determinants of R.
+    % GAUSSIANINFORMATIONMEASURES Closed-form Gaussian-copula information measures from the log-determinants of R.
     %
     % For a Gaussian copula the copula entropy is 1/2 log det R, and the measures reduce to determinant expressions:
     %   MI_G  = -1/2 log(1 - rho^2)                              (d = 2 only)
@@ -19,10 +19,10 @@ function G = gaussianInformationMeasures(R)
 
     d = size(R, 1);
     G = struct('d', d, 'valid', false, 'MI', NaN, 'TC', NaN, ...
-        'DTC', NaN, 'O', NaN, 'logdet_R', NaN, 'logdet_R_minor', NaN);
+               'DTC', NaN, 'O', NaN, 'logdet_R', NaN, 'logdet_R_minor', NaN);
     if ~isnumeric(R) || ~isreal(R) || ~ismatrix(R) ...
             || size(R, 2) ~= d || d < 2 || any(~isfinite(R(:)))
-        return;
+        return
     end
 
     % Symmetry and the unit diagonal are checked to a tolerance, not bit for bit.
@@ -36,7 +36,7 @@ function G = gaussianInformationMeasures(R)
     R_DIAG_TOL = 1e-8;    % = r_diag_tol of tFitDefaultOptions
     if norm(R - R.', 'fro') > R_SYM_TOL ...
             || max(abs(diag(R) - 1)) > R_DIAG_TOL
-        return;
+        return
     end
 
     % The log-determinants come from Cholesky factors, not from det().
@@ -44,16 +44,17 @@ function G = gaussianInformationMeasures(R)
     % A Cholesky log-determinant stays finite whenever the matrix is positive definite, and validity is Cholesky success on R and on every leave-one-out minor.
     [Lr, pr] = chol(R);
     if pr ~= 0
-        return;                                  % R not positive-definite
+        return                                   % R not positive-definite
     end
     logdet_R = 2 * sum(log(diag(Lr)));
 
     logdet_minor = zeros(1, d);
     for j = 1:d
-        keep = true(1, d); keep(j) = false;
+        keep = true(1, d);
+        keep(j) = false;
         [Lm, pm] = chol(R(keep, keep));
         if pm ~= 0
-            return;                              % a leave-one-out minor is not PD
+            return                               % a leave-one-out minor is not PD
         end
         logdet_minor(j) = 2 * sum(log(diag(Lm)));
     end

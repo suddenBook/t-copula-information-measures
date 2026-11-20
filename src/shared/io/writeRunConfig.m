@@ -1,5 +1,5 @@
 function config_path = writeRunConfig(ctx, settings, provenance)
-    %WRITERUNCONFIG Write one phase's settings, environment and provenance stamp.
+    % WRITERUNCONFIG Write one phase's settings, environment and provenance stamp.
     %
     % Writes <ctx.text_dir>/run_config.json holding {settings, env, provenance}, where ENV holds the verbatim values of a fixed list of TC_* run variables (localEnvironment) and PROVENANCE is the caller's run facts merged with the git sha, MATLAB release and host name of the machine that runs it.
     % It is a record, not a gate: no phase checks its contents.
@@ -22,15 +22,15 @@ function config_path = writeRunConfig(ctx, settings, provenance)
     end
 
     assert(isfield(ctx, 'text_dir') && ~isempty(ctx.text_dir), ...
-        'writeRunConfig:BadContext', ...
-        'ctx must carry a non-empty text_dir; openPhaseOutput supplies it.');
+           'writeRunConfig:BadContext', ...
+           'ctx must carry a non-empty text_dir; openPhaseOutput supplies it.');
     required = {'n_workers', 'started_utc', 'finished_utc'};
     missing = required(~isfield(provenance, required));
     assert(isempty(missing), 'writeRunConfig:MissingProvenance', ...
-        'provenance has no %s field; the phase must supply it.', ...
-        strjoin(missing, ', '));
+           'provenance has no %s field; the phase must supply it.', ...
+           strjoin(missing, ', '));
     validateattributes(provenance.n_workers, {'numeric'}, ...
-        {'scalar', 'integer', 'nonnegative'}, mfilename, 'provenance.n_workers');
+                       {'scalar', 'integer', 'nonnegative'}, mfilename, 'provenance.n_workers');
 
     provenance.started_utc = localIsoUtc(provenance.started_utc);
     provenance.finished_utc = localIsoUtc(provenance.finished_utc);
@@ -39,33 +39,31 @@ function config_path = writeRunConfig(ctx, settings, provenance)
     provenance.hostname = localHostname();
 
     payload = struct( ...
-        'settings',   settings, ...
-        'env',        localEnvironment(), ...
-        'provenance', provenance);
+                     'settings',   settings, ...
+                     'env',        localEnvironment(), ...
+                     'provenance', provenance);
 
     config_path = fullfile(char(ctx.text_dir), 'run_config.json');
     fid = fopen(config_path, 'w');
     assert(fid ~= -1, 'writeRunConfig:OpenFailed', ...
-        'Could not open %s for writing.', config_path);
+           'Could not open %s for writing.', config_path);
     closer = onCleanup(@() fclose(fid));
     fprintf(fid, '%s\n', jsonencode(payload, 'PrettyPrint', true));
 end
 
-
 function env = localEnvironment()
     % The values of a fixed list of 19 TC_* run variables, verbatim, an unset one as ""; a variable outside the list, such as the Phase 2 pilot overrides TC_GROUPS_PER_D and TC_MAX_PAIRS, is not recorded here.
     names = {'TC_DATA_ROOT', 'TC_RESULTS_ROOT', 'TC_WORKERS', 'TC_RECORDINGS', ...
-        'TC_RECORDING_INDEX', 'TC_SHARD', 'TC_OVERWRITE', ...
-        'TC_RENDER_FIGURES', 'TC_FINALIZE', ...
-        'TC_SIM_CLASS', 'TC_SIM_STEPS', 'TC_SIM_REPS', 'TC_SIM_P_LIST', ...
-        'TC_SIM_T_LIST', 'TC_SIM_S_LIST', 'TC_SIM_D_LIST', ...
-        'TC_SIM_CHECK_PARTS', 'TC_SIM_CHECK_PATHS', 'TC_SIM_CHECK_REPS'};
+             'TC_RECORDING_INDEX', 'TC_SHARD', 'TC_OVERWRITE', ...
+             'TC_RENDER_FIGURES', 'TC_FINALIZE', ...
+             'TC_SIM_CLASS', 'TC_SIM_STEPS', 'TC_SIM_REPS', 'TC_SIM_P_LIST', ...
+             'TC_SIM_T_LIST', 'TC_SIM_S_LIST', 'TC_SIM_D_LIST', ...
+             'TC_SIM_CHECK_PARTS', 'TC_SIM_CHECK_PATHS', 'TC_SIM_CHECK_REPS'};
     env = struct();
     for k = 1:numel(names)
         env.(names{k}) = getenv(names{k});
     end
 end
-
 
 function iso = localIsoUtc(value)
     % A datetime is converted to UTC (an unzoned one is taken as UTC); text is trusted as already formatted.
@@ -78,7 +76,6 @@ function iso = localIsoUtc(value)
     end
 end
 
-
 function sha = localGitSha()
     % The commit of the working tree, or 'unknown'.
     % It is never fatal: provenance is recorded, never enforced.
@@ -86,13 +83,13 @@ function sha = localGitSha()
     try
         root = repoRoot();
     catch
-        return;
+        return
     end
     [status, out] = system(sprintf('git -C "%s" rev-parse HEAD', root));
     out = strtrim(out);
     if status == 0 && ~isempty(regexp(out, '^[0-9a-f]{40}$', 'once'))
         sha = out;
-        return;
+        return
     end
     % A deployed tree carries no .git (and the MATLAB container may carry no git), so scripts/hpc/deploy.sh ships the commit as a GIT_SHA file instead.
     shaFile = fullfile(root, 'GIT_SHA');
@@ -103,7 +100,6 @@ function sha = localGitSha()
         end
     end
 end
-
 
 function host = localHostname()
     % The machine's host name, or 'unknown' when the hostname command fails.

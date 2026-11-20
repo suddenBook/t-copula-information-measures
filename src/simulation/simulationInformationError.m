@@ -1,5 +1,5 @@
 function err = simulationInformationError(d, p_true, p_hat, G_true, G_hat)
-    %SIMULATIONINFORMATIONERROR Split one replicate's information error into p and R.
+    % SIMULATIONINFORMATIONERROR Split one replicate's information error into p and R.
     %
     % For a Student-t copula every information measure is the sum of a term that depends only on the correlation matrix and a term that depends only on the shape parameter:
     %
@@ -60,12 +60,12 @@ function err = simulationInformationError(d, p_true, p_hat, G_true, G_hat)
     required = [measures, {'valid'}];
     missing = required(~isfield(G_true, required));
     assert(isempty(missing), 'simulationInformationError:BadGaussianTruth', ...
-        'G_true has no %s field; gaussianInformationMeasures supplies it.', ...
-        strjoin(missing, ', '));
+           'G_true has no %s field; gaussianInformationMeasures supplies it.', ...
+           strjoin(missing, ', '));
     missing = required(~isfield(G_hat, required));
     assert(isempty(missing), 'simulationInformationError:BadGaussianEstimate', ...
-        'G_hat has no %s field; gaussianInformationMeasures supplies it.', ...
-        strjoin(missing, ', '));
+           'G_hat has no %s field; gaussianInformationMeasures supplies it.', ...
+           strjoin(missing, ', '));
 
     shape_true = tInformationDifferences(d, p_true);
     if isfinite(p_hat) && p_hat >= 0

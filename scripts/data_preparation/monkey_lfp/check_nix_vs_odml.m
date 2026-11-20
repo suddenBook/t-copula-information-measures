@@ -1,4 +1,4 @@
-%CHECK_NIX_VS_ODML LFP extraction check: compare the flat files of extract_lfp_from_nix.py with the dataset's odML rejection lists and MATLAB convenience files.
+% CHECK_NIX_VS_ODML LFP extraction check: compare the flat files of extract_lfp_from_nix.py with the dataset's odML rejection lists and MATLAB convenience files.
 %
 % Inputs (read-only), for each monkey:
 %   1. the flat file written by extract_lfp_from_nix.py, data/monkey_LFP/raw/lfp_extracted/<sid>_lfp.mat
@@ -31,7 +31,7 @@ while ~(isfolder(fullfile(worktree_root, 'src')) && isfolder(fullfile(worktree_r
     parent = fileparts(worktree_root);
     if strcmp(parent, worktree_root)
         error('bootstrap:RepoRootNotFound', ...
-            'repository root (a dir with src/ and scripts/) not found above %s', script_dir);
+              'repository root (a dir with src/ and scripts/) not found above %s', script_dir);
     end
     worktree_root = parent;
 end
@@ -99,13 +99,13 @@ for mi = 1:length(monkeys)
     el_union = rowvec(find(ex.electrode_reject_HFC | ex.electrode_reject_LFC | ex.electrode_reject_IFC));
 
     [pass_count, fail_count] = assert_set(pass_count, fail_count, ...
-        sprintf('[%s] electrode_reject_HFC', mk), el_HFC, expected.(mk).el_HFC);
+                                          sprintf('[%s] electrode_reject_HFC', mk), el_HFC, expected.(mk).el_HFC);
     [pass_count, fail_count] = assert_set(pass_count, fail_count, ...
-        sprintf('[%s] electrode_reject_LFC', mk), el_LFC, expected.(mk).el_LFC);
+                                          sprintf('[%s] electrode_reject_LFC', mk), el_LFC, expected.(mk).el_LFC);
     [pass_count, fail_count] = assert_set(pass_count, fail_count, ...
-        sprintf('[%s] electrode_reject_IFC', mk), el_IFC, expected.(mk).el_IFC);
+                                          sprintf('[%s] electrode_reject_IFC', mk), el_IFC, expected.(mk).el_IFC);
     [pass_count, fail_count] = assert_set(pass_count, fail_count, ...
-        sprintf('[%s] electrode_reject_union', mk), el_union, expected.(mk).el_union);
+                                          sprintf('[%s] electrode_reject_union', mk), el_union, expected.(mk).el_union);
 
     % ------- (b) trial rejection unions -------
     tid = double(ex.trial_events.trial_id(:));
@@ -117,18 +117,18 @@ for mi = 1:length(monkeys)
     tr_union = rowvec(unique([tr_HFC, tr_LFC, tr_IFC]));
 
     [pass_count, fail_count] = assert_set(pass_count, fail_count, ...
-        sprintf('[%s] trial_reject_HFC', mk), tr_HFC, expected.(mk).tr_HFC);
+                                          sprintf('[%s] trial_reject_HFC', mk), tr_HFC, expected.(mk).tr_HFC);
     [pass_count, fail_count] = assert_set(pass_count, fail_count, ...
-        sprintf('[%s] trial_reject_LFC', mk), tr_LFC, expected.(mk).tr_LFC);
+                                          sprintf('[%s] trial_reject_LFC', mk), tr_LFC, expected.(mk).tr_LFC);
     [pass_count, fail_count] = assert_set(pass_count, fail_count, ...
-        sprintf('[%s] trial_reject_IFC', mk), tr_IFC, expected.(mk).tr_IFC);
+                                          sprintf('[%s] trial_reject_IFC', mk), tr_IFC, expected.(mk).tr_IFC);
     [pass_count, fail_count] = assert_set(pass_count, fail_count, ...
-        sprintf('[%s] trial_reject_union', mk), tr_union, expected.(mk).tr_union);
+                                          sprintf('[%s] trial_reject_union', mk), tr_union, expected.(mk).tr_union);
 
     % ------- (c) correct-trial set equivalence (extracted vs convenience) -------
     % Extracted: trials where any event has performance_str == 'correct_trial'.
     correct_from_extracted = rowvec(unique( ...
-        tid(strcmp(ex.trial_events.performance_str, 'correct_trial') & mask_valid)));
+                                           tid(strcmp(ex.trial_events.performance_str, 'correct_trial') & mask_valid)));
 
     % Convenience: trials where any event has numeric an_performance_in_trial == 255.
     fprintf('Loading convenience: %s\n', convenience_path);
@@ -139,7 +139,7 @@ for mi = 1:length(monkeys)
         ev = seg.events{j};
         if isfield(ev, 'name') && strcmp(strtrim(ev.name), 'TrialEvents')
             conv_tev = ev;
-            break;
+            break
         end
     end
     if isempty(conv_tev)
@@ -149,11 +149,11 @@ for mi = 1:length(monkeys)
     conv_perf      = double(conv_tev.an_performance_in_trial);
     conv_valid     = conv_trial_ids > 0;
     correct_from_convenience = rowvec(unique( ...
-        conv_trial_ids(conv_valid & conv_perf == 255)));
+                                             conv_trial_ids(conv_valid & conv_perf == 255)));
 
     [pass_count, fail_count] = assert_set(pass_count, fail_count, ...
-        sprintf('[%s] correct-trial set (extracted vs convenience)', mk), ...
-        correct_from_extracted, correct_from_convenience);
+                                          sprintf('[%s] correct-trial set (extracted vs convenience)', mk), ...
+                                          correct_from_extracted, correct_from_convenience);
 
     % ------- (d) internal performance_str <-> performance_code consistency -------
     % The three conditions extract_lfp_from_nix.py enforces:
@@ -168,7 +168,7 @@ for mi = 1:length(monkeys)
     n_bad_forward = sum(is_correct_str(:) & ~is_correct_code(:));
     if n_bad_forward > 0
         report_fail(sprintf('[%s] (d.1) perf_str==correct_trial -> perf_code==255', mk), ...
-            sprintf('%d events violate the forward implication', n_bad_forward));
+                    sprintf('%d events violate the forward implication', n_bad_forward));
         fail_count = fail_count + 1;
     else
         report_pass(sprintf('[%s] (d.1) perf_str==correct_trial -> perf_code==255', mk));
@@ -181,13 +181,13 @@ for mi = 1:length(monkeys)
         t = uniq_tids(k);
         codes = unique(perf_code(tid == t));
         if length(codes) > 1
-            mixed_trials(end+1) = t; %#ok<AGROW>
+            mixed_trials(end + 1) = t; %#ok<AGROW>
         end
     end
     if ~isempty(mixed_trials)
         report_fail(sprintf('[%s] (d.2) uniform perf_code per trial', mk), ...
-            sprintf('%d trials have mixed perf_code; first few = %s', ...
-            length(mixed_trials), mat2str(mixed_trials(1:min(10,end)))));
+                    sprintf('%d trials have mixed perf_code; first few = %s', ...
+                    length(mixed_trials), mat2str(mixed_trials(1:min(10, end)))));
         fail_count = fail_count + 1;
     else
         report_pass(sprintf('[%s] (d.2) uniform perf_code per trial', mk));
@@ -196,8 +196,8 @@ for mi = 1:length(monkeys)
 
     correct_by_code = rowvec(unique(tid(is_correct_code(:) & mask_valid)));
     [pass_count, fail_count] = assert_set(pass_count, fail_count, ...
-        sprintf('[%s] (d.3) correct-trial set via perf_str == via perf_code', mk), ...
-        correct_from_extracted, correct_by_code);
+                                          sprintf('[%s] (d.3) correct-trial set via perf_str == via perf_code', mk), ...
+                                          correct_from_extracted, correct_by_code);
 
     % Summary of per-monkey key numbers
     fprintf('\n  [%s] summary:\n', mk);
@@ -205,11 +205,11 @@ for mi = 1:length(monkeys)
     fprintf('    fs:                %g Hz\n', ex.fs);
     fprintf('    t_start:           %g s (units=%s)\n', ex.t_start, ex.t_start_units);
     fprintf('    correct trials:    %d (extracted), %d (convenience)\n', ...
-        length(correct_from_extracted), length(correct_from_convenience));
+            length(correct_from_extracted), length(correct_from_convenience));
     fprintf('    electrode union:   %s\n', mat2str(el_union));
     fprintf('    trial union:       %s\n', mat2str(tr_union));
 
-    clear ex conv seg conv_tev conv_trial_ids conv_perf conv_valid
+    clear ex conv seg conv_tev conv_trial_ids conv_perf conv_valid;
 end
 
 fprintf('\n==========================================\n');
@@ -242,7 +242,9 @@ function [pass_count, fail_count] = assert_set(pass_count, fail_count, label, go
             detail = sprintf('extra=%s', mat2str(extra));
         end
         if ~isempty(missing)
-            if ~isempty(detail); detail = [detail ' ']; end
+            if ~isempty(detail)
+                detail = [detail ' '];
+            end
             detail = [detail sprintf('missing=%s', mat2str(missing))];
         end
         report_fail(label, detail);

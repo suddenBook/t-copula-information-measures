@@ -1,5 +1,5 @@
 function [density, mass] = gaussianCopulaDensityGrid(rho, u_edges, v_edges)
-    %GAUSSIANCOPULADENSITYGRID Cell-averaged Gaussian copula density on a rectangular grid.
+    % GAUSSIANCOPULADENSITYGRID Cell-averaged Gaussian copula density on a rectangular grid.
     %
     % [density, mass] = gaussianCopulaDensityGrid(rho, u_edges, v_edges) returns the probability mass the bivariate Gaussian copula with correlation rho puts on each cell of the grid u_edges x v_edges, and the cell-averaged density, which is that mass divided by the cell area.
     %
@@ -21,16 +21,15 @@ function [density, mass] = gaussianCopulaDensityGrid(rho, u_edges, v_edges)
     end
     if abs(rho) >= 1
         error('gaussianCopulaDensityGrid:CorrelationOutOfRange', ...
-            'rho must lie strictly inside (-1, 1); got %.6g.', rho);
+              'rho must lie strictly inside (-1, 1); got %.6g.', rho);
     end
 
     R = [1, rho; rho, 1];
     mass = copulaCellMassFromCdf(u_edges, v_edges, ...
-        localNormalQuantile(u_edges), localNormalQuantile(v_edges), ...
-        @(Z) mvncdf(Z, [0, 0], R));
+                                 localNormalQuantile(u_edges), localNormalQuantile(v_edges), ...
+                                 @(Z) mvncdf(Z, [0, 0], R));
     density = mass ./ (diff(u_edges).' * diff(v_edges));
 end
-
 
 function z = localNormalQuantile(u)
     % Standard normal quantile, finite inside (0, 1); the 0 and 1 edges are handled in closed form by copulaCellMassFromCdf, which never reads their placeholder value.

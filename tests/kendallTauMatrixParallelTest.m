@@ -1,5 +1,5 @@
 classdef kendallTauMatrixParallelTest < matlab.unittest.TestCase
-    %KENDALLTAUMATRIXPARALLELTEST The parallel Kendall matrix is the serial one.
+    % KENDALLTAUMATRIXPARALLELTEST The parallel Kendall matrix is the serial one.
     %
     % Phase 3 computes one full-recording Kendall matrix per surrogate realization through kendallTauMatrixParallel and then reads its submatrices, while Phase 2 fits each channel set from kendallTauMatrix.
     % If the two disagreed, the observed fits and their surrogate reference would come from different correlation matrices and the comparison would be meaningless.
@@ -8,28 +8,31 @@ classdef kendallTauMatrixParallelTest < matlab.unittest.TestCase
     % The suite uses synthetic inputs only and reads no recordings.
 
     methods (TestClassSetup)
+
         function addSourceTree(testCase)
             sourceTree = fullfile( ...
-                fileparts(fileparts(mfilename('fullpath'))), 'src');
+                                  fileparts(fileparts(mfilename('fullpath'))), 'src');
             assert(isfolder(sourceTree), ...
-                'kendallTauMatrixParallelTest:SourceTreeNotFound', ...
-                'expected this file under <repo>/tests/; got %s', ...
-                mfilename('fullpath'));
+                   'kendallTauMatrixParallelTest:SourceTreeNotFound', ...
+                   'expected this file under <repo>/tests/; got %s', ...
+                   mfilename('fullpath'));
             testCase.applyFixture(matlab.unittest.fixtures.PathFixture( ...
-                sourceTree, IncludingSubfolders=true));
+                                                                       sourceTree, IncludingSubfolders = true));
         end
+
     end
 
     methods (Test)
+
         function equalsTheSerialMatrix(testCase)
             % Same rows, same pairs, same numbers, with AbsTol 0 because both entry points make the same kendallTauKnight call.
             X = localDependentColumns(400, 7, 31);
 
             testCase.verifyEqual(kendallTauMatrixParallel(X), ...
-                kendallTauMatrix(X), ...
-                ['the parallel and serial Kendall matrices must be bit ' ...
-                'identical: Phase 2 fits from one and Phase 3 judges it ' ...
-                'against the other.'], AbsTol=0);
+                                 kendallTauMatrix(X), ...
+                                 ['the parallel and serial Kendall matrices must be bit ' ...
+                                  'identical: Phase 2 fits from one and Phase 3 judges it ' ...
+                                  'against the other.'], AbsTol = 0);
         end
 
         function equalsTheSerialMatrixWithTies(testCase)
@@ -38,7 +41,7 @@ classdef kendallTauMatrixParallelTest < matlab.unittest.TestCase
             X = round(localDependentColumns(300, 5, 7) * 3);
 
             testCase.verifyEqual(kendallTauMatrixParallel(X), ...
-                kendallTauMatrix(X), AbsTol=0);
+                                 kendallTauMatrix(X), AbsTol = 0);
         end
 
         function narrowestMatrixIsOnePair(testCase)
@@ -47,8 +50,8 @@ classdef kendallTauMatrixParallelTest < matlab.unittest.TestCase
             tau = kendallTauMatrixParallel(X);
 
             testCase.verifySize(tau, [2, 2]);
-            testCase.verifyEqual(diag(tau), ones(2, 1), AbsTol=0);
-            testCase.verifyEqual(tau, kendallTauMatrix(X), AbsTol=0);
+            testCase.verifyEqual(diag(tau), ones(2, 1), AbsTol = 0);
+            testCase.verifyEqual(tau, kendallTauMatrix(X), AbsTol = 0);
         end
 
         function constantColumnPropagatesNaNAsInTheSerialRoute(testCase)
@@ -61,12 +64,12 @@ classdef kendallTauMatrixParallelTest < matlab.unittest.TestCase
 
             testCase.verifyEqual(isnan(tau), isnan(kendallTauMatrix(X)));
             testCase.verifyTrue(all(isnan(tau([1, 2, 4], 3))));
-            testCase.verifyEqual(tau, kendallTauMatrix(X), AbsTol=0);
+            testCase.verifyEqual(tau, kendallTauMatrix(X), AbsTol = 0);
         end
 
         function tooFewChannelsIsNamed(testCase)
             testCase.verifyError(@() kendallTauMatrixParallel(randn(20, 1)), ...
-                'kendallTauMatrixParallel:TooFewChannels');
+                                 'kendallTauMatrixParallel:TooFewChannels');
         end
 
         function theWorkerLimitDoesNotMoveTheMatrix(testCase)
@@ -74,9 +77,9 @@ classdef kendallTauMatrixParallelTest < matlab.unittest.TestCase
             X = localDependentColumns(250, 6, 23);
 
             testCase.verifyEqual(kendallTauMatrixParallel(X, 0), ...
-                kendallTauMatrixParallel(X), AbsTol=0);
+                                 kendallTauMatrixParallel(X), AbsTol = 0);
             testCase.verifyEqual(kendallTauMatrixParallel(X, 0), ...
-                kendallTauMatrix(X), AbsTol=0);
+                                 kendallTauMatrix(X), AbsTol = 0);
         end
 
         function aZeroWorkerRequestOpensNoPool(testCase)
@@ -93,15 +96,15 @@ classdef kendallTauMatrixParallelTest < matlab.unittest.TestCase
 
             tau = kendallTauMatrixParallel(X, 0);
 
-            testCase.verifyEqual(tau, kendallTauMatrix(X), AbsTol=0);
+            testCase.verifyEqual(tau, kendallTauMatrix(X), AbsTol = 0);
             if license('test', 'Distrib_Computing_Toolbox')
                 testCase.verifyEmpty(gcp('nocreate'), ...
-                    'a zero-worker request must not open a parallel pool.');
+                                     'a zero-worker request must not open a parallel pool.');
             end
         end
+
     end
 end
-
 
 function X = localDependentColumns(n, d, seed)
     % A correlated [samples x channels] matrix, a shared factor plus channel noise, so every pair has a non-trivial tau-b.

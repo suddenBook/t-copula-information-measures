@@ -1,5 +1,5 @@
 function [payload, wrote] = peWriteArtifactCleanDecision(sidecar_path, decision)
-    %PEWRITEARTIFACTCLEANDECISION Write one artifact_clean_decision.json sidecar.
+    % PEWRITEARTIFACTCLEANDECISION Write one artifact_clean_decision.json sidecar.
     %
     % The sidecar is a reporting record: which channels the cleaning policy removed, which channels the detector listed as candidates (detector score above severe_threshold), and the reason string behind each.
     % No fitted quantity depends on it.
@@ -34,24 +34,24 @@ function [payload, wrote] = peWriteArtifactCleanDecision(sidecar_path, decision)
     end
 
     required = {'mode', 'severe_threshold_pct', 'removed_channels', ...
-        'removed_reasons', 'candidate_channels', 'candidate_reasons'};
+                'removed_reasons', 'candidate_channels', 'candidate_reasons'};
     for k = 1:numel(required)
         assert(isfield(decision, required{k}), ...
-            'peWriteArtifactCleanDecision:MissingField', ...
-            'decision is missing required field "%s" (sidecar %s).', ...
-            required{k}, sidecar_path);
+               'peWriteArtifactCleanDecision:MissingField', ...
+               'decision is missing required field "%s" (sidecar %s).', ...
+               required{k}, sidecar_path);
     end
     assert(ismember(decision.mode, {'auto', 'interactive'}), ...
-        'peWriteArtifactCleanDecision:BadMode', ...
-        'decision.mode must be ''auto'' or ''interactive'', got "%s" (sidecar %s).', ...
-        decision.mode, sidecar_path);
+           'peWriteArtifactCleanDecision:BadMode', ...
+           'decision.mode must be ''auto'' or ''interactive'', got "%s" (sidecar %s).', ...
+           decision.mode, sidecar_path);
 
     removed = localChannelRow(decision.removed_channels, 'removed_channels', sidecar_path);
     candidates = localChannelRow(decision.candidate_channels, 'candidate_channels', sidecar_path);
     removed_reasons = localReasonRow(decision.removed_reasons, numel(removed), ...
-        'removed_reasons', 'removed_channels', sidecar_path);
+                                     'removed_reasons', 'removed_channels', sidecar_path);
     candidate_reasons = localReasonRow(decision.candidate_reasons, numel(candidates), ...
-        'candidate_reasons', 'candidate_channels', sidecar_path);
+                                       'candidate_reasons', 'candidate_channels', sidecar_path);
 
     channel_labels = {};
     if isfield(decision, 'channel_labels') && iscell(decision.channel_labels)
@@ -66,7 +66,7 @@ function [payload, wrote] = peWriteArtifactCleanDecision(sidecar_path, decision)
         timestamp = char(string(decision.timestamp));
     else
         timestamp = char(datetime('now', 'TimeZone', 'UTC', ...
-            'Format', 'yyyy-MM-dd''T''HH:mm:ssXXX'));
+                                  'Format', 'yyyy-MM-dd''T''HH:mm:ssXXX'));
     end
 
     % The key order is fixed, so two sidecars of the same recording diff line by line.
@@ -96,20 +96,18 @@ function [payload, wrote] = peWriteArtifactCleanDecision(sidecar_path, decision)
     wrote = localWriteJson(sidecar_path, payload);
 end
 
-
 function row = localChannelRow(value, name, sidecar_path)
     % Normalise a channel-index list to a double row vector of 1-based integers.
     assert(isnumeric(value) || islogical(value), ...
-        'peWriteArtifactCleanDecision:BadChannelList', ...
-        'decision.%s must be numeric, got %s (sidecar %s).', ...
-        name, class(value), sidecar_path);
+           'peWriteArtifactCleanDecision:BadChannelList', ...
+           'decision.%s must be numeric, got %s (sidecar %s).', ...
+           name, class(value), sidecar_path);
     row = double(value(:)');
     assert(all(row == fix(row) & row >= 1), ...
-        'peWriteArtifactCleanDecision:BadChannelIndex', ...
-        'decision.%s must hold 1-based integer channel indices (sidecar %s).', ...
-        name, sidecar_path);
+           'peWriteArtifactCleanDecision:BadChannelIndex', ...
+           'decision.%s must hold 1-based integer channel indices (sidecar %s).', ...
+           name, sidecar_path);
 end
-
 
 function text = localReasonRow(value, n_expected, name, channel_field, sidecar_path)
     % Normalise a reason list to a 1 x N cell of char, one entry per channel it describes.
@@ -120,13 +118,13 @@ function text = localReasonRow(value, n_expected, name, channel_field, sidecar_p
         value = cellstr(value);
     end
     assert(iscell(value), 'peWriteArtifactCleanDecision:BadReasonList', ...
-        'decision.%s must be a cell array of strings, got %s (sidecar %s).', ...
-        name, class(value), sidecar_path);
+           'decision.%s must be a cell array of strings, got %s (sidecar %s).', ...
+           name, class(value), sidecar_path);
     assert(numel(value) == n_expected, ...
-        'peWriteArtifactCleanDecision:ReasonCountMismatch', ...
-        ['decision.%s has %d entries but decision.%s has %d channels; ' ...
-        'reasons{k} must describe channel k (sidecar %s).'], ...
-        name, numel(value), channel_field, n_expected, sidecar_path);
+           'peWriteArtifactCleanDecision:ReasonCountMismatch', ...
+           ['decision.%s has %d entries but decision.%s has %d channels; ' ...
+            'reasons{k} must describe channel k (sidecar %s).'], ...
+           name, numel(value), channel_field, n_expected, sidecar_path);
 
     text = cell(1, numel(value));
     for k = 1:numel(value)
@@ -137,7 +135,6 @@ function text = localReasonRow(value, n_expected, name, channel_field, sidecar_p
         end
     end
 end
-
 
 function labels = localChannelLabels(channels, channel_labels)
     % Human label per channel where one exists, numeric index otherwise.
@@ -153,7 +150,6 @@ function labels = localChannelLabels(channels, channel_labels)
     end
 end
 
-
 function out = localJsonNumericArray(value)
     % Force the JSON array form for a channel-index or per-channel flag list.
     %
@@ -167,7 +163,6 @@ function out = localJsonNumericArray(value)
     end
 end
 
-
 function wrote = localWriteJson(path, payload)
     % Write the encoded payload, reporting rather than raising on I/O failure.
     wrote = false;
@@ -177,8 +172,8 @@ function wrote = localWriteJson(path, payload)
             mkdir(parent_dir);
         catch
             fprintf(2, 'Could not create sidecar dir %s; skipping decision JSON.\n', ...
-                parent_dir);
-            return;
+                    parent_dir);
+            return
         end
     end
 
@@ -186,13 +181,13 @@ function wrote = localWriteJson(path, payload)
         fid = fopen(path, 'w');
         if fid == -1
             fprintf(2, 'Could not open sidecar %s for writing.\n', path);
-            return;
+            return
         end
         cleanup = onCleanup(@() fclose(fid));
         fwrite(fid, jsonencode(payload, 'PrettyPrint', true));
         wrote = true;
     catch sidecar_err
         fprintf(2, 'Failed to write artifact_clean_decision.json: %s\n', ...
-            sidecar_err.message);
+                sidecar_err.message);
     end
 end

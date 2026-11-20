@@ -1,5 +1,5 @@
 function root = resolveRootFromEnv(name, defaultRoot)
-    %RESOLVEROOTFROMENV Root folder from an environment variable, or the default when it is unset.
+    % RESOLVEROOTFROMENV Root folder from an environment variable, or the default when it is unset.
     %
     % No folder is created here, so the callers decide whether an input root must already exist or an output root may be created.
     %
@@ -16,7 +16,7 @@ function root = resolveRootFromEnv(name, defaultRoot)
     raw = strtrim(string(getenv(name)));
     if strlength(raw) == 0
         root = char(defaultRoot);
-        return;
+        return
     end
     if startsWith(raw, "/")
         root = char(raw);

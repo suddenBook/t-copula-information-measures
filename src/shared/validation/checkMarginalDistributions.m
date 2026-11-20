@@ -1,4 +1,4 @@
-%CHECKMARGINALDISTRIBUTIONS Per-channel kurtosis and skewness of one or more signal matrices.
+% CHECKMARGINALDISTRIBUTIONS Per-channel kurtosis and skewness of one or more signal matrices.
 %
 % Descriptive QC only: ranks remove the marginals before the copula analysis, so there is no marginal-normality test, no copula goodness-of-fit test and no inclusion or exclusion decision.
 % A channel with fewer than two samples, any non-finite value or a constant signal gets NaN.
@@ -42,7 +42,7 @@ function stats = checkMarginalDistributions(datasets, labels)
     for k = 2:n_datasets
         if size(datasets{k}, 2) ~= n_channels
             error('All datasets must have the same number of channels (%d vs %d).', ...
-                n_channels, size(datasets{k}, 2));
+                  n_channels, size(datasets{k}, 2));
         end
     end
 
@@ -76,26 +76,25 @@ function stats = checkMarginalDistributions(datasets, labels)
     for k = 1:n_datasets
         fprintf('\n--- %s (%d samples) ---\n', stats(k).label, stats(k).n_samples);
         localPrintFiniteMomentSummary('Kurtosis', stats(k).kurtosis, ...
-            n_channels, '  (Gaussian reference=3)');
+                                      n_channels, '  (Gaussian reference=3)');
         localPrintFiniteMomentSummary('Skewness', stats(k).skewness, ...
-            n_channels, '');
+                                      n_channels, '');
         fprintf(['  Interpretation: descriptive marginal-shape QC only; ranks ' ...
-            'remove these marginals before copula analysis. There is no ' ...
-            'marginal-normality or copula goodness-of-fit test and no inclusion rule.\n']);
+                 'remove these marginals before copula analysis. There is no ' ...
+                 'marginal-normality or copula goodness-of-fit test and no inclusion rule.\n']);
     end
 
 end
-
 
 function localPrintFiniteMomentSummary(name, values, nChannels, suffix)
     % Print the mean and range of the finite per-channel values and how many channels they cover.
     finiteValues = values(isfinite(values));
     if isempty(finiteValues)
         fprintf('  %s: no finite nonconstant-channel values (0/%d channels)%s\n', ...
-            name, nChannels, suffix);
-        return;
+                name, nChannels, suffix);
+        return
     end
     fprintf('  %s: mean=%.2f, range=[%.2f, %.2f] (%d/%d finite channels)%s\n', ...
-        name, mean(finiteValues), min(finiteValues), max(finiteValues), ...
-        numel(finiteValues), nChannels, suffix);
+            name, mean(finiteValues), min(finiteValues), max(finiteValues), ...
+            numel(finiteValues), nChannels, suffix);
 end

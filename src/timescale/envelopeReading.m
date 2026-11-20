@@ -1,5 +1,5 @@
 function reading = envelopeReading(score_acf, floor_level)
-    %ENVELOPEREADING How the envelope of a series' autocorrelations is read, decided once from the score.
+    % ENVELOPEREADING How the envelope of a series' autocorrelations is read, decided once from the score.
     %
     % The reading is decided from SCORE_ACF, the autocorrelation of the rank-normal scores, and fitEnvelopeTimescale applies it to every curve derived from the same series (the score itself, its square, and the square's Gaussian reference), so that all of them are read the same way:
     %   'peaks'    - the score dips below -FLOOR_LEVEL somewhere in its window, so the series oscillates (a band-pass filtered recording).
@@ -25,15 +25,15 @@ function reading = envelopeReading(score_acf, floor_level)
     %     floor_level - FLOOR_LEVEL.
 
     arguments
-        score_acf (:,1) double {mustBeReal}
-        floor_level (1,1) double {mustBeGreaterThan(floor_level, 0), mustBeLessThan(floor_level, 1)} = 0.05
+        score_acf (:, 1) double {mustBeReal}
+        floor_level (1, 1) double {mustBeGreaterThan(floor_level, 0), mustBeLessThan(floor_level, 1)} = 0.05
     end
 
     n = numel(score_acf);
     assert(n >= 3, 'envelopeReading:ShapeMismatch', ...
-        'The score autocorrelation needs at least 3 lags; got %d.', n);
+           'The score autocorrelation needs at least 3 lags; got %d.', n);
     assert(all(isfinite(score_acf)), 'envelopeReading:NonFiniteAcf', ...
-        'The score autocorrelation contains %d non-finite values.', nnz(~isfinite(score_acf)));
+           'The score autocorrelation contains %d non-finite values.', nnz(~isfinite(score_acf)));
 
     mode = 'monotone';
     peak_index = 1;

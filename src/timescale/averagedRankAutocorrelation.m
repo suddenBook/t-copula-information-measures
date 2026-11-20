@@ -1,5 +1,5 @@
 function out = averagedRankAutocorrelation(X, segment_ends, max_lag, transform, centring)
-    %AVERAGEDRANKAUTOCORRELATION Channel-averaged autocorrelation of rank-normal scores within segments.
+    % AVERAGEDRANKAUTOCORRELATION Channel-averaged autocorrelation of rank-normal scores within segments.
     %
     % Each column of the signal matrix X [samples x channels] is ranked over the whole recording and mapped to normal scores Z = norminv(rank / (n + 1)).
     % Every channel's autocorrelation at lags 0..MAX_LAG samples is estimated from lagged products taken within each segment only, so no pair of samples straddles a declared trial boundary.
@@ -41,32 +41,32 @@ function out = averagedRankAutocorrelation(X, segment_ends, max_lag, transform, 
     % Under 'segment' centring it is not the square's reference, which carries the pull of that centring (segmentCentredGaussianReference).
 
     arguments
-        X (:,:) double {mustBeFinite, mustBeReal}
-        segment_ends (:,1) double = []
-        max_lag (1,1) double {mustBeInteger, mustBeNonnegative} = 0
-        transform (1,:) char {mustBeMember(transform, {'score', 'square'})} = 'score'
-        centring (1,:) char {mustBeMember(centring, {'recording', 'segment'})} = 'recording'
+        X (:, :) double {mustBeFinite, mustBeReal}
+        segment_ends (:, 1) double = []
+        max_lag (1, 1) double {mustBeInteger, mustBeNonnegative} = 0
+        transform (1, :) char {mustBeMember(transform, {'score', 'square'})} = 'score'
+        centring (1, :) char {mustBeMember(centring, {'recording', 'segment'})} = 'recording'
     end
 
     [n, n_channels] = size(X);
     assert(n >= 2 && n_channels >= 1, 'averagedRankAutocorrelation:EmptyMatrix', ...
-        'X must have at least 2 samples and 1 channel; got %d x %d.', n, n_channels);
+           'X must have at least 2 samples and 1 channel; got %d x %d.', n, n_channels);
     if isempty(segment_ends)
         segment_ends = n;
     end
     assert(all(segment_ends == round(segment_ends)) && all(diff(segment_ends) > 0) ...
-        && segment_ends(1) >= 1 && segment_ends(end) == n, ...
-        'averagedRankAutocorrelation:InvalidSegments', ...
-        ['Segment ends must be strictly increasing integers ending at the sample count %d; ' ...
-        'got %d ends ending at %g.'], n, numel(segment_ends), segment_ends(end));
+           && segment_ends(1) >= 1 && segment_ends(end) == n, ...
+           'averagedRankAutocorrelation:InvalidSegments', ...
+           ['Segment ends must be strictly increasing integers ending at the sample count %d; ' ...
+            'got %d ends ending at %g.'], n, numel(segment_ends), segment_ends(end));
     segment_lengths = diff([0; segment_ends]);
     assert(max_lag < max(segment_lengths), 'averagedRankAutocorrelation:LagTooLong', ...
-        'MAX_LAG = %d must be smaller than the longest segment (%d samples).', ...
-        max_lag, max(segment_lengths));
+           'MAX_LAG = %d must be smaller than the longest segment (%d samples).', ...
+           max_lag, max(segment_lengths));
 
     Z = norminv(tiedrank(X) ./ (n + 1));
     if strcmp(transform, 'square')
-        S = Z .^ 2;
+        S = Z.^2;
     else
         S = Z;
     end
@@ -93,11 +93,11 @@ function out = averagedRankAutocorrelation(X, segment_ends, max_lag, transform, 
         len = numel(rows);
         n_used = min(max_lag, len - 1) + 1;
         pair_counts(1:n_used) = pair_counts(1:n_used) + (len - (0:n_used - 1))';
-        n_fft = 2 ^ nextpow2(2 * len - 1);
+        n_fft = 2^nextpow2(2 * len - 1);
         for first = 1:block_size:n_channels
             cols = first:min(first + block_size - 1, n_channels);
             spectrum = fft(S(rows, cols), n_fft);
-            lagged = real(ifft(abs(spectrum) .^ 2));
+            lagged = real(ifft(abs(spectrum).^2));
             autocov_sum(1:n_used, cols) = autocov_sum(1:n_used, cols) + lagged(1:n_used, :);
         end
     end
@@ -108,17 +108,17 @@ function out = averagedRankAutocorrelation(X, segment_ends, max_lag, transform, 
     acf_by_channel(:, constant) = NaN;
     n_valid = nnz(~constant);
     assert(n_valid >= 1, 'averagedRankAutocorrelation:AllChannelsConstant', ...
-        'Every one of the %d channels has a constant %s series; no autocorrelation exists.', ...
-        n_channels, transform);
+           'Every one of the %d channels has a constant %s series; no autocorrelation exists.', ...
+           n_channels, transform);
 
     out = struct( ...
-        'lags', (0:max_lag)', ...
-        'acf_mean', mean(acf_by_channel(:, ~constant), 2), ...
-        'acf_by_channel', acf_by_channel, ...
-        'pair_counts', pair_counts, ...
-        'n_valid_channels', n_valid, ...
-        'transform', transform);
+                 'lags', (0:max_lag)', ...
+                 'acf_mean', mean(acf_by_channel(:, ~constant), 2), ...
+                 'acf_by_channel', acf_by_channel, ...
+                 'pair_counts', pair_counts, ...
+                 'n_valid_channels', n_valid, ...
+                 'transform', transform);
     if strcmp(transform, 'score')
-        out.acf_square_gaussian = mean(acf_by_channel(:, ~constant) .^ 2, 2);
+        out.acf_square_gaussian = mean(acf_by_channel(:, ~constant).^2, 2);
     end
 end

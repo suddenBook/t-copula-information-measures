@@ -1,4 +1,4 @@
-%SAVEFIGUREASPDF Save the current figure as a vector PDF and an editable .fig with the same base name.
+% SAVEFIGUREASPDF Save the current figure as a vector PDF and an editable .fig with the same base name.
 %
 %   saveFigureAsPDF(filename, width, height)
 %

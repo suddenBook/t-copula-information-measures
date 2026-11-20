@@ -1,4 +1,4 @@
-%PROMPTARTIFACTCHANNELSELECTION Ask the operator which detector candidates to remove.
+% PROMPTARTIFACTCHANNELSELECTION Ask the operator which detector candidates to remove.
 %
 % Lists the candidates with their reasons and reads the answer at the command line.
 % Enter or 'all' removes every candidate, 'none' (or 'keep', '[]') keeps them all, and a list such as [3 7 12] or 3 7 12 removes that subset.
@@ -27,14 +27,14 @@ function selected_channels = promptArtifactChannelSelection(candidate_channels, 
 
     if isempty(candidate_channels)
         fprintf('\nInteractive channel selection: the detector candidate list is empty.\n');
-        return;
+        return
     end
 
     fprintf('\nInteractive channel selection enabled.\n');
     if ~isempty(severe_threshold)
         fprintf(['Review the channel plot, then choose which candidates from the ' ...
-            'legacy score > %.1f ledger to exclude.\n'], ...
-            severe_threshold);
+                 'legacy score > %.1f ledger to exclude.\n'], ...
+                severe_threshold);
     else
         fprintf('Review the channel plot, then choose which detected channels to exclude.\n');
     end
@@ -50,19 +50,19 @@ function selected_channels = promptArtifactChannelSelection(candidate_channels, 
     end
 
     fprintf(['Enter ''all'' to remove every listed channel, ''none'' to keep them all,\n' ...
-        'or type a subset such as [3 7 12] or 3 7 12.\n']);
+             'or type a subset such as [3 7 12] or 3 7 12.\n']);
 
     while true
         user_input = strtrim(input('Channel selection [all]: ', 's'));
 
         if isempty(user_input) || strcmpi(user_input, 'all')
             selected_channels = candidate_channels;
-            break;
+            break
         end
 
         if any(strcmpi(user_input, {'none', 'keep', '[]'}))
             selected_channels = [];
-            break;
+            break
         end
 
         sanitized_input = regexprep(user_input, '[\[\],;]', ' ');
@@ -72,20 +72,20 @@ function selected_channels = promptArtifactChannelSelection(candidate_channels, 
         if isempty(parsed_channels) || any(~isfinite(parsed_channels)) || ...
                 any(parsed_channels ~= round(parsed_channels))
             fprintf('Input not understood. Type ''all'', ''none'', or integer channel numbers.\n');
-            continue;
+            continue
         end
 
         parsed_channels = unique(parsed_channels);
         invalid_channels = setdiff(parsed_channels, candidate_channels);
         if ~isempty(invalid_channels)
             fprintf('Only detected channels can be selected here. Valid choices: %s\n', ...
-                mat2str(candidate_channels));
+                    mat2str(candidate_channels));
             fprintf('Invalid channel numbers: %s\n', mat2str(invalid_channels));
-            continue;
+            continue
         end
 
         selected_channels = parsed_channels;
-        break;
+        break
     end
 
     fprintf('Final exclusion set: %s\n', mat2str(selected_channels));

@@ -1,4 +1,4 @@
-%MERGEOPTIONS Fill missing option fields from defaults.
+% MERGEOPTIONS Fill missing option fields from defaults.
 %
 % A field already in options keeps its value and a field only in defaults is added; nested structs are not merged.
 %

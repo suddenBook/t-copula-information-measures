@@ -1,5 +1,5 @@
 function absz = tTailQuantile(q, p)
-    %TTAILQUANTILE Magnitude of the Student-t quantile for a two-sided tail probability.
+    % TTAILQUANTILE Magnitude of the Student-t quantile for a two-sided tail probability.
     %
     % absz = tTailQuantile(q, p) returns |z| with P(|T| > |z|) = q for a Student-t variable T with nu = 1/p degrees of freedom.
     % p = 0 selects the standard normal limit.
@@ -20,20 +20,20 @@ function absz = tTailQuantile(q, p)
         p (1, 1) double {mustBeReal, mustBeFinite, mustBeNonnegative}
     end
     assert(all(q(:) > 0 & q(:) <= 1), 'tTailQuantile:TailProbabilityOutOfRange', ...
-        'Two-sided tail probabilities must lie in (0, 1]; got min %.3g and max %.3g.', ...
-        min(q(:)), max(q(:)));
+           'Two-sided tail probabilities must lie in (0, 1]; got min %.3g and max %.3g.', ...
+           min(q(:)), max(q(:)));
 
     if p == 0
         absz = sqrt(2) * erfcinv(q);
-        return;
+        return
     end
     if p <= 1e-5
         z0 = sqrt(2) * erfcinv(q);
-        z2 = z0 .^ 2;
+        z2 = z0.^2;
         absz = z0 .* (1 + p * (z2 + 1) / 4 ...
-            + p ^ 2 * (5 * z2 .^ 2 + 16 * z2 + 3) / 96 ...
-            + p ^ 3 * (3 * z2 .^ 3 + 19 * z2 .^ 2 + 17 * z2 - 15) / 384);
-        return;
+                      + p^2 * (5 * z2.^2 + 16 * z2 + 3) / 96 ...
+                      + p^3 * (3 * z2.^3 + 19 * z2.^2 + 17 * z2 - 15) / 384);
+        return
     end
 
     nu = 1 / p;

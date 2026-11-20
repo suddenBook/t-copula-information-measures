@@ -1,4 +1,4 @@
-%CLEANSEEGARTIFACTS Remove artifact channels from a recording using the detector output.
+% CLEANSEEGARTIFACTS Remove artifact channels from a recording using the detector output.
 %
 %   [X_clean, clean_info] = cleanSEEGArtifacts(X, fs, artifact_regions, artifact_info, params)
 %
@@ -26,19 +26,19 @@ function [X_clean, clean_info] = cleanSEEGArtifacts(X, fs, artifact_regions, art
 
     % Default parameters
     default_params = struct( ...
-        'severe_threshold', 10, ...  % percent; a detector score above it makes a channel a candidate
-        'moderate_threshold', 5, ...  % percent; 'channel_and_time' cuts the regions of channels scoring from here to severe_threshold
-        'merge_gap', 0.1, ...  % s; cut segments closer than this are merged
-        'apply_powerline_filter', false, ...  % notch-filter the channels with detected line noise
-        'powerline_freqs', [50, 60], ...  % Hz, notch centres
-        'powerline_bandwidth', 2, ...  % Hz, notch width
-        'cleaning_strategy', 'channel_only', ...  % 'channel_only' or 'channel_and_time'
-        'artifact_selection_mode', 'auto', ...  % 'auto' (no prompt; abnormal kurtosis only) or 'interactive'
-        'interactive_channel_selection', false, ...  % true forces 'interactive'; set to the resolved mode below
-        'channel_labels', {{}}, ...  % optional per-channel labels for the log and the sidecar
-        'decision_sidecar_path', '', ...  % path of artifact_clean_decision.json; '' writes none
-        'visualize', false ...  % plot the candidates in interactive mode
-        );
+                            'severe_threshold', 10, ...  % percent; a detector score above it makes a channel a candidate
+                            'moderate_threshold', 5, ...  % percent; 'channel_and_time' cuts the regions of channels scoring from here to severe_threshold
+                            'merge_gap', 0.1, ...  % s; cut segments closer than this are merged
+                            'apply_powerline_filter', false, ...  % notch-filter the channels with detected line noise
+                            'powerline_freqs', [50, 60], ...  % Hz, notch centres
+                            'powerline_bandwidth', 2, ...  % Hz, notch width
+                            'cleaning_strategy', 'channel_only', ...  % 'channel_only' or 'channel_and_time'
+                            'artifact_selection_mode', 'auto', ...  % 'auto' (no prompt; abnormal kurtosis only) or 'interactive'
+                            'interactive_channel_selection', false, ...  % true forces 'interactive'; set to the resolved mode below
+                            'channel_labels', {{}}, ...  % optional per-channel labels for the log and the sidecar
+                            'decision_sidecar_path', '', ...  % path of artifact_clean_decision.json; '' writes none
+                            'visualize', false ...  % plot the candidates in interactive mode
+                           );
 
     % Merge with user parameters
     fields = fieldnames(params);
@@ -49,14 +49,14 @@ function [X_clean, clean_info] = cleanSEEGArtifacts(X, fs, artifact_regions, art
 
     % Validate cleaning_strategy
     assert(ismember(params.cleaning_strategy, {'channel_only', 'channel_and_time'}), ...
-        'cleaning_strategy must be ''channel_only'' or ''channel_and_time''.');
+           'cleaning_strategy must be ''channel_only'' or ''channel_and_time''.');
 
     % artifact_selection_mode chooses the mode ('auto' by default); the boolean interactive_channel_selection, when true, forces 'interactive'.
     if ~isfield(params, 'artifact_selection_mode') || isempty(params.artifact_selection_mode)
         params.artifact_selection_mode = 'auto';
     end
     assert(ismember(params.artifact_selection_mode, {'auto', 'interactive'}), ...
-        'artifact_selection_mode must be ''auto'' or ''interactive''.');
+           'artifact_selection_mode must be ''auto'' or ''interactive''.');
     if params.interactive_channel_selection
         params.artifact_selection_mode = 'interactive';
     end
@@ -68,7 +68,7 @@ function [X_clean, clean_info] = cleanSEEGArtifacts(X, fs, artifact_regions, art
 
     fprintf('\n=== Electrophysiology Artifact Cleaning ===\n');
     fprintf('Original data: %d samples x %d channels (%.2f seconds)\n', ...
-        n_samples, n_channels, original_duration);
+            n_samples, n_channels, original_duration);
     %% Step 1: Apply powerline interference filtering
     X_clean = X;
     powerline_filtered_channels = [];
@@ -96,8 +96,8 @@ function [X_clean, clean_info] = cleanSEEGArtifacts(X, fs, artifact_regions, art
         end
 
         fprintf('Notch filter applied to %d channels: %s\n', ...
-            length(unique(powerline_filtered_channels)), ...
-            mat2str(unique(powerline_filtered_channels)));
+                length(unique(powerline_filtered_channels)), ...
+                mat2str(unique(powerline_filtered_channels)));
     end
     %% Step 2: Candidate list from the detector score
     channel_artifact_pct = artifact_info.channel_artifact_pct;
@@ -107,18 +107,18 @@ function [X_clean, clean_info] = cleanSEEGArtifacts(X, fs, artifact_regions, art
     % The candidate list (score above severe_threshold) feeds the interactive review and the sidecar; automatic removal is decided by reason in Step 3.
     auto_severe_channels = find(channel_artifact_pct > params.severe_threshold);
     moderate_channels = find(channel_artifact_pct >= params.moderate_threshold & ...
-        channel_artifact_pct <= params.severe_threshold);
+                             channel_artifact_pct <= params.severe_threshold);
     clean_channels = find(channel_artifact_pct < params.moderate_threshold);
 
     fprintf(['\nLegacy sentinel-inclusive detector score categories ' ...
-        '(not temporal-load or removal verdicts):\n']);
+             '(not temporal-load or removal verdicts):\n']);
     fprintf('Candidate score >%.1f: %d channels - %s\n', ...
-        params.severe_threshold, length(auto_severe_channels), mat2str(auto_severe_channels));
+            params.severe_threshold, length(auto_severe_channels), mat2str(auto_severe_channels));
     fprintf('Intermediate score %.1f-%.1f: %d channels - %s\n', ...
-        params.moderate_threshold, params.severe_threshold, ...
-        length(moderate_channels), mat2str(moderate_channels));
+            params.moderate_threshold, params.severe_threshold, ...
+            length(moderate_channels), mat2str(moderate_channels));
     fprintf('Below-candidate score <%.1f: %d channels\n', ...
-        params.moderate_threshold, length(clean_channels));
+            params.moderate_threshold, length(clean_channels));
     %% Step 3: Apply the declared reason-specific channel decision
     fprintf('\nPreparing reason-specific channel decision...\n');
 
@@ -130,14 +130,14 @@ function [X_clean, clean_info] = cleanSEEGArtifacts(X, fs, artifact_regions, art
         % Only plot channels that exist in the current X
         valid_mask = auto_severe_channels <= n_channels;
         visualizeExcludedChannels(X, auto_severe_channels(valid_mask), ...
-            channel_artifact_pct, fs, exclusion_reasons(valid_mask));
+                                  channel_artifact_pct, fs, exclusion_reasons(valid_mask));
 
         if any(~valid_mask)
             fprintf('Note: %d detector candidates (indices > %d) are not in current data — skipped in plot.\n', ...
-                sum(~valid_mask), n_channels);
+                    sum(~valid_mask), n_channels);
             for k = find(~valid_mask)'
                 fprintf('  Channel %d (legacy detector score %.1f) — %s\n', ...
-                    auto_severe_channels(k), channel_artifact_pct(auto_severe_channels(k)), exclusion_reasons{k});
+                        auto_severe_channels(k), channel_artifact_pct(auto_severe_channels(k)), exclusion_reasons{k});
             end
         end
     end
@@ -149,7 +149,7 @@ function [X_clean, clean_info] = cleanSEEGArtifacts(X, fs, artifact_regions, art
 
     if strcmp(params.artifact_selection_mode, 'interactive')
         selected_channels = promptArtifactChannelSelection( ...
-            auto_severe_channels, exclusion_reasons, params.severe_threshold);
+                                                           auto_severe_channels, exclusion_reasons, params.severe_threshold);
     else
         % Automatic mode removes only the channels flagged for abnormal kurtosis.
         % Low-power, isolated, redundant and high-temporal-rate channels are reported below and kept; removing any of them takes artifact_selection_mode = 'interactive'.
@@ -164,7 +164,7 @@ function [X_clean, clean_info] = cleanSEEGArtifacts(X, fs, artifact_regions, art
     X_clean = X_clean(:, keep_channels);
 
     fprintf('Retained %d channels (excluded %d channels)\n', ...
-        length(keep_channels), length(severe_channels));
+            length(keep_channels), length(severe_channels));
 
     % Detected-but-kept channels per reason, for the log and the sidecar: channels flagged for one of the four non-kurtosis reasons that are not removed.
     % In automatic mode these are all such channels without an abnormal-kurtosis flag; in interactive mode, all such channels the operator kept.
@@ -175,25 +175,25 @@ function [X_clean, clean_info] = cleanSEEGArtifacts(X, fs, artifact_regions, art
     detected_redundant     = find(flag_redundant & ~removed_set);
     detected_temporal_rate = find(flag_temporal_rate & ~removed_set);
     detected_other_diagnostics = unique([detected_low_power, detected_isolated, ...
-        detected_redundant, detected_temporal_rate]);
+                                         detected_redundant, detected_temporal_rate]);
 
     % One log line with all five reason categories, so a batch run records the full classification.
     flagged_label_str = formatChannelLabelList(severe_channels, params.channel_labels);
     fprintf(['Phase 1 artifact-clean: mode=%s, abnormal_kurt removed=%d, ', ...
-        'diagnostic candidates retained=%d (low_power=%d, isolated=%d, ', ...
-        'redundant=%d, temporal_rate=%d). Removed channels: %s\n'], ...
-        params.artifact_selection_mode, ...
-        sum(flag_abnormal_kurt & removed_set), ...
-        numel(detected_other_diagnostics), ...
-        numel(detected_low_power), ...
-        numel(detected_isolated), ...
-        numel(detected_redundant), ...
-        numel(detected_temporal_rate), ...
-        flagged_label_str);
+             'diagnostic candidates retained=%d (low_power=%d, isolated=%d, ', ...
+             'redundant=%d, temporal_rate=%d). Removed channels: %s\n'], ...
+            params.artifact_selection_mode, ...
+            sum(flag_abnormal_kurt & removed_set), ...
+            numel(detected_other_diagnostics), ...
+            numel(detected_low_power), ...
+            numel(detected_isolated), ...
+            numel(detected_redundant), ...
+            numel(detected_temporal_rate), ...
+            flagged_label_str);
     if strcmp(params.artifact_selection_mode, 'interactive')
         fprintf('Channels selected for exclusion: %s\n', mat2str(severe_channels));
         fprintf('Legacy detector-score candidates retained by operator: %s\n', ...
-            mat2str(setdiff(auto_severe_channels, severe_channels)));
+                mat2str(setdiff(auto_severe_channels, severe_channels)));
     end
 
     % Optional sidecar: the decision with all five reason flags as JSON, so the run is documented without parsing the log.
@@ -206,15 +206,15 @@ function [X_clean, clean_info] = cleanSEEGArtifacts(X, fs, artifact_regions, art
         removed_channel_reasons = buildExclusionReasons(severe_channels, artifact_info);
 
         flag_payload = struct( ...
-            'flag_low_power',     double(flag_low_power), ...
-            'flag_abnormal_kurt', double(flag_abnormal_kurt), ...
-            'flag_isolated',      double(flag_isolated), ...
-            'flag_redundant',     double(flag_redundant), ...
-            'flag_temporal_rate', double(flag_temporal_rate), ...
-            'detected_low_power',     detected_low_power, ...
-            'detected_isolated',      detected_isolated, ...
-            'detected_redundant',     detected_redundant, ...
-            'detected_temporal_rate', detected_temporal_rate);
+                              'flag_low_power',     double(flag_low_power), ...
+                              'flag_abnormal_kurt', double(flag_abnormal_kurt), ...
+                              'flag_isolated',      double(flag_isolated), ...
+                              'flag_redundant',     double(flag_redundant), ...
+                              'flag_temporal_rate', double(flag_temporal_rate), ...
+                              'detected_low_power',     detected_low_power, ...
+                              'detected_isolated',      detected_isolated, ...
+                              'detected_redundant',     detected_redundant, ...
+                              'detected_temporal_rate', detected_temporal_rate);
 
         % Assigned field by field, because struct() reads a cell-valued argument as a struct-array specification.
         decision = struct();
@@ -288,13 +288,13 @@ function [X_clean, clean_info] = cleanSEEGArtifacts(X, fs, artifact_regions, art
             merged_segments = [merged_segments; current_start, current_end];
 
             fprintf('Merged %d segments into %d segments\n', ...
-                size(cut_segments, 1), size(merged_segments, 1));
+                    size(cut_segments, 1), size(merged_segments, 1));
 
             % Convert time segments to sample indices
             cut_indices = [];
             for i = 1:size(merged_segments, 1)
-                start_sample = max(1, round(merged_segments(i, 1)*fs));
-                end_sample = min(n_samples, round(merged_segments(i, 2)*fs));
+                start_sample = max(1, round(merged_segments(i, 1) * fs));
+                end_sample = min(n_samples, round(merged_segments(i, 2) * fs));
                 cut_indices = [cut_indices; start_sample, end_sample];
             end
 
@@ -317,7 +317,7 @@ function [X_clean, clean_info] = cleanSEEGArtifacts(X, fs, artifact_regions, art
                 total_cut_samples = total_cut_samples + (end_idx - start_idx + 1);
 
                 fprintf('  Cutting samples %d-%d (%.3f-%.3f s, %.3f s)\n', ...
-                    start_idx, end_idx, (start_idx - 1)/fs, (end_idx - 1)/fs, (end_idx - start_idx + 1)/fs);
+                        start_idx, end_idx, (start_idx - 1) / fs, (end_idx - 1) / fs, (end_idx - start_idx + 1) / fs);
             end
         end
         %% Step 7: Apply the mask in a single cut
@@ -327,7 +327,7 @@ function [X_clean, clean_info] = cleanSEEGArtifacts(X, fs, artifact_regions, art
         total_cut_time = total_cut_samples / fs;
 
         fprintf('Cut %d samples (%.3f seconds) in one operation\n', ...
-            total_cut_samples, total_cut_time);
+                total_cut_samples, total_cut_time);
 
     else
         % channel_only: skip time cutting entirely
@@ -346,11 +346,11 @@ function [X_clean, clean_info] = cleanSEEGArtifacts(X, fs, artifact_regions, art
     fprintf('Original: %d channels, %.2f seconds\n', n_channels, original_duration);
     fprintf('Final: %d channels, %.2f seconds\n', size(X_clean, 2), final_duration);
     fprintf('Channel retention: %.1f%% (%d/%d)\n', ...
-        channel_retention_pct, size(X_clean, 2), n_channels);
+            channel_retention_pct, size(X_clean, 2), n_channels);
     fprintf('Time retention: %.1f%% (%.2f/%.2f seconds)\n', ...
-        data_retention_pct, final_duration, original_duration);
+            data_retention_pct, final_duration, original_duration);
     fprintf('Total cut time: %.2f seconds (%.1f%%)\n', ...
-        total_cut_time, (total_cut_time / original_duration)*100);
+            total_cut_time, (total_cut_time / original_duration) * 100);
     %% Step 9: Store cleaning information
     clean_info = struct();
     clean_info.original_size = [n_samples, n_channels];
@@ -375,12 +375,11 @@ function [X_clean, clean_info] = cleanSEEGArtifacts(X, fs, artifact_regions, art
     % render_phase1_cleaning.py draws the six-panel cleaning summary from X_raw, X and clean_info in preprocessed_data.mat; no MATLAB figure is drawn here.
 end
 
-
 function s = formatChannelLabelList(channel_indices, channel_labels)
     % Comma-separated channel list for the log: the channel label where one exists, the numeric index otherwise, or '(none)'.
     if isempty(channel_indices)
         s = '(none)';
-        return;
+        return
     end
     parts = cell(1, numel(channel_indices));
     for k = 1:numel(channel_indices)
@@ -395,7 +394,6 @@ function s = formatChannelLabelList(channel_indices, channel_labels)
     s = strjoin(parts, ', ');
 end
 
-
 function [low_power, abnormal_kurt, isolated, redundant, temporal_rate] = ...
         resolveReasonFlags(artifact_info, n_channels)
     % The five per-channel reason flags of artifact_info as 1 x n_channels logical rows.
@@ -407,7 +405,7 @@ function [low_power, abnormal_kurt, isolated, redundant, temporal_rate] = ...
     temporal_rate = falseRow(artifact_info, 'flag_temporal_rate', n_channels);
 
     if isfield(artifact_info, 'flag_temporal_rate')
-        return;
+        return
     end
     % Without flag_temporal_rate, apply the 10 percent default of peArtifactDetectionDefaults to channel_artifact_pct, leaving out the score of 100 that marks a channel-level flag.
     if isfield(artifact_info, 'channel_artifact_pct')
@@ -418,7 +416,6 @@ function [low_power, abnormal_kurt, isolated, redundant, temporal_rate] = ...
         end
     end
 end
-
 
 function row = falseRow(s, field, n)
     % s.(field) as a 1 x n logical row, or all false when it is absent, not logical or of another length.

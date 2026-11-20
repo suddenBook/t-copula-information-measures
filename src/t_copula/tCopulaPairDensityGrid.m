@@ -1,5 +1,5 @@
 function [density, mass] = tCopulaPairDensityGrid(rho, p, u_edges, v_edges)
-    %TCOPULAPAIRDENSITYGRID Cell-averaged Student-t copula density on a rectangular grid.
+    % TCOPULAPAIRDENSITYGRID Cell-averaged Student-t copula density on a rectangular grid.
     %
     % [density, mass] = tCopulaPairDensityGrid(rho, p, u_edges, v_edges) returns the probability mass the bivariate Student-t copula with correlation rho and nu = 1/p degrees of freedom puts on each cell of the grid u_edges x v_edges, and the cell-averaged density, which is that mass divided by the cell area.
     %
@@ -27,21 +27,20 @@ function [density, mass] = tCopulaPairDensityGrid(rho, p, u_edges, v_edges)
     end
     if abs(rho) >= 1
         error('tCopulaPairDensityGrid:CorrelationOutOfRange', ...
-            'rho must lie strictly inside (-1, 1); got %.6g.', rho);
+              'rho must lie strictly inside (-1, 1); got %.6g.', rho);
     end
     if p == 0
         [density, mass] = gaussianCopulaDensityGrid(rho, u_edges, v_edges);
-        return;
+        return
     end
 
     nu = 1 / p;
     R = [1, rho; rho, 1];
     mass = copulaCellMassFromCdf(u_edges, v_edges, ...
-        localTQuantile(u_edges, p), localTQuantile(v_edges, p), ...
-        @(Z) mvtcdf(Z, R, nu));
+                                 localTQuantile(u_edges, p), localTQuantile(v_edges, p), ...
+                                 @(Z) mvtcdf(Z, R, nu));
     density = mass ./ (diff(u_edges).' * diff(v_edges));
 end
-
 
 function z = localTQuantile(u, p)
     % Signed t quantile from the two-sided tail magnitude, finite inside (0, 1); the 0 and 1 edges are handled in closed form by copulaCellMassFromCdf, which never reads their placeholder value.

@@ -1,4 +1,4 @@
-%CHECKSTATIONARITY Descriptive sliding-window amplitude QC of a multichannel signal.
+% CHECKSTATIONARITY Descriptive sliding-window amplitude QC of a multichannel signal.
 %
 % Computes the channel-averaged variance and absolute mean in sliding windows; Phase 1 applies it to the raw input, before artifact cleaning and band-pass filtering.
 % The summaries make amplitude drift and state changes visible, but they are not a stationarity test, give no verdict and never decide inclusion or exclusion.
@@ -34,13 +34,13 @@ function info = checkStationarity(X, fs, options)
 
     [nSamples, ~] = size(X);
     validateattributes(X, {'numeric'}, {'2d', 'nonempty', 'real', 'finite'}, ...
-        mfilename, 'X');
+                       mfilename, 'X');
     validateattributes(fs, {'numeric'}, {'scalar', 'positive', 'finite'}, ...
-        mfilename, 'fs');
+                       mfilename, 'fs');
     validateattributes(windowSec, {'numeric'}, {'scalar', 'positive', 'finite'}, ...
-        mfilename, 'options.windowSec');
+                       mfilename, 'options.windowSec');
     validateattributes(stepSec, {'numeric'}, {'scalar', 'positive', 'finite'}, ...
-        mfilename, 'options.stepSec');
+                       mfilename, 'options.stepSec');
 
     windowLen = min(nSamples, max(1, round(windowSec * fs)));
     stepLen   = max(1, round(stepSec * fs));
@@ -79,11 +79,11 @@ function info = checkStationarity(X, fs, options)
     fprintf('\n--- Raw-input sliding-window amplitude diagnostic ---\n');
     fprintf('  Stage: before artifact cleaning and band-pass filtering.\n');
     fprintf('  Duration: %.1f sec | %d windows (%.0fs window, %.0fs step)\n', ...
-        nSamples / fs, nWindows, windowLen / fs, stepLen / fs);
+            nSamples / fs, nWindows, windowLen / fs, stepLen / fs);
     fprintf('  Variance — mean: %.1f, range: [%.1f, %.1f], CV: %.3f\n', ...
-        mean(window_var), min(window_var), max(window_var), cv_var);
+            mean(window_var), min(window_var), max(window_var), cv_var);
     fprintf(['  Interpretation: descriptive non-exclusionary QC only; no ' ...
-        'stationarity test, verdict, or inclusion threshold is applied.\n']);
+             'stationarity test, verdict, or inclusion threshold is applied.\n']);
     fprintf('---------------------------------------------------------\n\n');
 
     % Pack output

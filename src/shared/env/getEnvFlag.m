@@ -1,5 +1,5 @@
 function value = getEnvFlag(name, defaultValue)
-    %GETENVFLAG Strict boolean environment-variable parser.
+    % GETENVFLAG Strict boolean environment-variable parser.
     %
     % Inputs:
     %   name         - environment variable name.
@@ -14,7 +14,7 @@ function value = getEnvFlag(name, defaultValue)
     raw = strtrim(string(getenv(name)));
     if strlength(raw) == 0
         value = defaultValue;
-        return;
+        return
     end
     switch lower(raw)
         case {"1", "true", "yes", "on"}
@@ -23,7 +23,7 @@ function value = getEnvFlag(name, defaultValue)
             value = false;
         otherwise
             error('getEnvFlag:InvalidValue', ...
-                '%s must be one of 1/0, true/false, yes/no, on/off; got "%s".', ...
-                name, raw);
+                  '%s must be one of 1/0, true/false, yes/no, on/off; got "%s".', ...
+                  name, raw);
     end
 end

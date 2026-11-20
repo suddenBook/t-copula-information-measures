@@ -1,5 +1,5 @@
 function [R, corr] = unitCorrelationFromTau(tau_sub, fit_opts)
-    %UNITCORRELATIONFROMTAU Correlation reference and its audit for one channel set.
+    % UNITCORRELATIONFROMTAU Correlation reference and its audit for one channel set.
     %
     % [R, corr] = unitCorrelationFromTau(tau_sub, fit_opts) maps the [d x d] Kendall tau-b matrix of one channel set to the elliptical-copula correlation matrix R through the sine relation rho = sin(pi tau / 2), which is exact for every elliptical copula and therefore for the Student-t working model.
     % It also returns the audit the unit row reports:
@@ -36,17 +36,17 @@ function [R, corr] = unitCorrelationFromTau(tau_sub, fit_opts)
     d = size(tau_sub, 1);
     if size(tau_sub, 2) ~= d || d < 2
         error('unitCorrelationFromTau:NotASquareTauMatrix', ...
-            ['tau_sub must be a square [d x d] Kendall matrix with d >= 2; ' ...
-            'got %d x %d.'], size(tau_sub, 1), size(tau_sub, 2));
+              ['tau_sub must be a square [d x d] Kendall matrix with d >= 2; ' ...
+               'got %d x %d.'], size(tau_sub, 1), size(tau_sub, 2));
     end
     fit_opts = tFitDefaultOptions(fit_opts);
 
     corr = struct('rho', NaN, 'tau', NaN, ...
-        'max_abs_rho', NaN, 'mean_abs_rho', NaN, ...
-        'numerical_valid', false, 'repair_applied', false, ...
-        'repair_shift_rms', NaN, 'repair_gross', false, ...
-        'degenerate_pair', false, 'min_eig', NaN, 'cond_R', NaN, ...
-        'logdet_R', NaN, 'sum_logdet_minors', NaN, 'reason', '');
+                  'max_abs_rho', NaN, 'mean_abs_rho', NaN, ...
+                  'numerical_valid', false, 'repair_applied', false, ...
+                  'repair_shift_rms', NaN, 'repair_gross', false, ...
+                  'degenerate_pair', false, 'min_eig', NaN, 'cond_R', NaN, ...
+                  'logdet_R', NaN, 'sum_logdet_minors', NaN, 'reason', '');
 
     if d == 2
         corr.tau = tau_sub(1, 2);
@@ -55,11 +55,11 @@ function [R, corr] = unitCorrelationFromTau(tau_sub, fit_opts)
         % A constant or all-tied channel gives NaN tau-b, so the correlation reference does not exist, and inventing one would put a fabricated dependence into the fit.
         R = nan(d);
         corr.reason = 'nonfinite_kendall_tau';
-        return;
+        return
     end
 
     [R, audit] = kendallCorrelationReference(tau_sub, ...
-        struct('max_projection_shift_rms', fit_opts.max_projection_shift_rms));
+                                             struct('max_projection_shift_rms', fit_opts.max_projection_shift_rms));
 
     corr.numerical_valid  = audit.numerical_valid;
     corr.repair_applied   = audit.projection_applied;

@@ -1,5 +1,5 @@
 function root = repoRoot()
-    %REPOROOT Absolute path of the repository root.
+    % REPOROOT Absolute path of the repository root.
     %
     % The root is the nearest folder, walking up from this file's own folder, that contains both src/ and scripts/, so the result does not depend on how deep under the repository this file or its callers sit.
     %
@@ -14,8 +14,8 @@ function root = repoRoot()
         parent = fileparts(root);
         if strcmp(parent, root)
             error('repoRoot:NotFound', ...
-                'repository root (a directory containing src/ and scripts/) not found above %s', ...
-                fileparts(mfilename('fullpath')));
+                  'repository root (a directory containing src/ and scripts/) not found above %s', ...
+                  fileparts(mfilename('fullpath')));
         end
         root = parent;
     end

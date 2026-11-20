@@ -1,5 +1,5 @@
 function T = unitRowsToTable(rows)
-    %UNITROWSTOTABLE Flat unit rows as a CSV-ready table.
+    % UNITROWSTOTABLE Flat unit rows as a CSV-ready table.
     %
     % T = unitRowsToTable(rows) turns the study's flat unit rows (as tFitUnit builds them) into one table with a scalar in every cell, which is what writetable can express and what every renderer reads.
     %
@@ -22,11 +22,11 @@ function T = unitRowsToTable(rows)
 
     if isscalar(rows) && any(endsWith(fieldnames(rows), '_labels'))
         T = localColumnTable(rows);
-        return;
+        return
     end
 
     assert(~isempty(rows), 'unitRowsToTable:NoRows', ...
-        'A unit table needs at least one row; got an empty struct array.');
+           'A unit table needs at least one row; got an empty struct array.');
 
     packed = localPackedFields();
     names = reshape(fieldnames(rows), 1, []);
@@ -35,7 +35,7 @@ function T = unitRowsToTable(rows)
     for k = 1:numel(names)
         name = names{k};
         if ismember(name, packed)
-            continue;
+            continue
         end
         if strcmp(name, 'channels')
             [channels_str, channel_columns] = localChannelColumns(rows);
@@ -45,7 +45,7 @@ function T = unitRowsToTable(rows)
                 columns{end + 1} = channel_columns(:, c); %#ok<AGROW>
                 column_names{end + 1} = sprintf('ch%02d', c); %#ok<AGROW>
             end
-            continue;
+            continue
         end
         columns{end + 1} = localScalarColumn(rows, name); %#ok<AGROW>
         column_names{end + 1} = name; %#ok<AGROW>
@@ -54,12 +54,10 @@ function T = unitRowsToTable(rows)
     T = table(columns{:}, 'VariableNames', column_names);
 end
 
-
 function packed = localPackedFields()
     % The fields that stay in the MAT: they are matrices, not table cells.
     packed = {'tau_matrix', 'R', 'profile_p_grid', 'profile_loglik_grid'};
 end
-
 
 function T = localColumnTable(units)
     % The same table, built straight from a column struct.
@@ -68,23 +66,23 @@ function T = localColumnTable(units)
     names = reshape(fieldnames(units), 1, []);
     per_unit = names(~endsWith(names, '_labels') & ~strcmp(names, 'dataset_key'));
     assert(~isempty(per_unit), 'unitRowsToTable:NoUnitColumn', ...
-        'The column struct carries no per-unit column; its fields are %s.', ...
-        strjoin(names, ', '));
+           'The column struct carries no per-unit column; its fields are %s.', ...
+           strjoin(names, ', '));
     n = size(units.(per_unit{1}), 1);
     assert(n > 0, 'unitRowsToTable:NoRows', ...
-        'A unit table needs at least one row; the column struct holds 0 unit(s).');
+           'A unit table needs at least one row; the column struct holds 0 unit(s).');
 
     columns = {};
     column_names = {};
     for k = 1:numel(names)
         name = names{k};
         if ismember(name, packed) || endsWith(name, '_labels')
-            continue;
+            continue
         end
         if strcmp(name, 'dataset_key')
             columns{end + 1} = repmat({char(units.dataset_key)}, n, 1); %#ok<AGROW>
             column_names{end + 1} = name; %#ok<AGROW>
-            continue;
+            continue
         end
         if strcmp(name, 'channels')
             [channels_str, channel_columns] = localChannelColumnsFromMatrix(units.channels);
@@ -94,26 +92,25 @@ function T = localColumnTable(units)
                 columns{end + 1} = channel_columns(:, c); %#ok<AGROW>
                 column_names{end + 1} = sprintf('ch%02d', c); %#ok<AGROW>
             end
-            continue;
+            continue
         end
         if isfield(units, [name '_labels'])
             labels = reshape(units.([name '_labels']), 1, []);
             columns{end + 1} = reshape(labels(double(units.(name))), [], 1); %#ok<AGROW>
             column_names{end + 1} = name; %#ok<AGROW>
-            continue;
+            continue
         end
         value = units.(name);
         assert(size(value, 2) == 1, 'unitRowsToTable:UnsupportedField', ...
-            ['Column "%s" is %s. A unit table holds one value per unit, so a ' ...
-            'wider column belongs in the MAT beside the packed matrices.'], ...
-            name, mat2str(size(value)));
+               ['Column "%s" is %s. A unit table holds one value per unit, so a ' ...
+                'wider column belongs in the MAT beside the packed matrices.'], ...
+               name, mat2str(size(value)));
         columns{end + 1} = value; %#ok<AGROW>
         column_names{end + 1} = name; %#ok<AGROW>
     end
 
     T = table(columns{:}, 'VariableNames', column_names);
 end
-
 
 function [channels_str, channel_columns] = localChannelColumnsFromMatrix(channels)
     % The [n x 20] padded channel matrix as the readable string and its own columns.
@@ -125,14 +122,13 @@ function [channels_str, channel_columns] = localChannelColumnsFromMatrix(channel
     end
 end
 
-
 function [channels_str, channel_columns] = localChannelColumns(rows)
     % The padded channel list as both a readable string and its numeric columns.
     width = numel(rows(1).channels);
     assert(all(arrayfun(@(r) numel(r.channels) == width, rows)), ...
-        'unitRowsToTable:RaggedChannels', ...
-        ['Every unit row must carry the same channel width; row 1 has %d ' ...
-        'entries and another row does not.'], width);
+           'unitRowsToTable:RaggedChannels', ...
+           ['Every unit row must carry the same channel width; row 1 has %d ' ...
+            'entries and another row does not.'], width);
     channel_columns = reshape([rows.channels], width, []).';
     channels_str = cell(numel(rows), 1);
     for k = 1:numel(rows)
@@ -140,7 +136,6 @@ function [channels_str, channel_columns] = localChannelColumns(rows)
         channels_str{k} = strtrim(sprintf('%d ', present));
     end
 end
-
 
 function column = localScalarColumn(rows, name)
     % One field as a table column: text becomes a cellstr, everything else a vector.
@@ -151,9 +146,9 @@ function column = localScalarColumn(rows, name)
         column = reshape([rows.(name)], [], 1);
     else
         error('unitRowsToTable:UnsupportedField', ...
-            ['Field "%s" is a %s of size %s. A unit table holds scalar ' ...
-            'numeric, logical and text fields only; a matrix or vector ' ...
-            'field belongs in the MAT file.'], ...
-            name, class(value), mat2str(size(value)));
+              ['Field "%s" is a %s of size %s. A unit table holds scalar ' ...
+               'numeric, logical and text fields only; a matrix or vector ' ...
+               'field belongs in the MAT file.'], ...
+              name, class(value), mat2str(size(value)));
     end
 end

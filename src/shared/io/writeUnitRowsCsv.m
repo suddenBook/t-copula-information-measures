@@ -1,5 +1,5 @@
 function writeUnitRowsCsv(rows, path)
-    %WRITEUNITROWSCSV Write flat unit rows to a CSV, atomically.
+    % WRITEUNITROWSCSV Write flat unit rows to a CSV, atomically.
     %
     % writeUnitRowsCsv(rows, path) is unitRowsToTable followed by writeTableAtomic: the one place a phase turns its unit rows into a CSV the renderers read, so the pairs.csv and groups_long.csv of Phase 2 carry the same columns in the same order.
     %

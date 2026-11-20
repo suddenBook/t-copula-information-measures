@@ -1,5 +1,5 @@
 function [tau, acf, lags] = rankIntegratedAutocorrTime(X, maxLag)
-    %RANKINTEGRATEDAUTOCORRTIME Integrated autocorrelation time of rank-normal scores.
+    % RANKINTEGRATEDAUTOCORRTIME Integrated autocorrelation time of rank-normal scores.
     %
     %   [tau, acf, lags] = rankIntegratedAutocorrTime(X, maxLag)
     %
@@ -24,7 +24,7 @@ function [tau, acf, lags] = rankIntegratedAutocorrTime(X, maxLag)
         Z(:, c) = norminv(tiedrank(X(:, c)) / (n + 1));
     end
     Z = Z - mean(Z, 1);
-    v = mean(Z .^ 2, 1);
+    v = mean(Z.^2, 1);
     acf = zeros(d, maxLag);
     for k = 1:maxLag
         acf(:, k) = (sum(Z(1:n - k, :) .* Z(k + 1:n, :), 1) / (n - k)) ./ v;

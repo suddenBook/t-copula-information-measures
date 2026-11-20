@@ -1,5 +1,5 @@
 function mass = copulaCellMassFromCdf(u_edges, v_edges, z_u, z_v, cdfFun)
-    %COPULACELLMASSFROMCDF Exact cell probabilities of a bivariate copula on a grid.
+    % COPULACELLMASSFROMCDF Exact cell probabilities of a bivariate copula on a grid.
     %
     % mass = copulaCellMassFromCdf(u_edges, v_edges, z_u, z_v, cdfFun) evaluates the copula's distribution function on the full edge grid and applies the rectangle rule:
     %   mass(i, j) = C(u_{i+1}, v_{j+1}) - C(u_i, v_{j+1})
@@ -32,7 +32,7 @@ function mass = copulaCellMassFromCdf(u_edges, v_edges, z_u, z_v, cdfFun)
     if any(insideU) && any(insideV)
         [ZU, ZV] = ndgrid(z_u(insideU), z_v(insideV));
         C(insideU, insideV) = reshape(cdfFun([ZU(:), ZV(:)]), ...
-            nnz(insideU), nnz(insideV));
+                                      nnz(insideU), nnz(insideV));
     end
     % The uniform margins of the copula give the boundary rows and columns exactly; C(0, .) and C(., 0) are the zeros already in place.
     atOneU = u_edges == 1;
@@ -43,19 +43,18 @@ function mass = copulaCellMassFromCdf(u_edges, v_edges, z_u, z_v, cdfFun)
     mass = diff(diff(C, 1, 1), 1, 2);
 end
 
-
 function localCheckEdges(edges, name, n_quantiles)
     % Error unless the edges ascend strictly inside [0, 1] and come with one quantile each.
     if numel(edges) < 2 || any(diff(edges) <= 0) ...
             || edges(1) < 0 || edges(end) > 1
         error('copulaCellMassFromCdf:InvalidEdges', ...
-            ['%s must be at least two strictly ascending edges inside ' ...
-            '[0, 1]; got %d edges spanning [%.6g, %.6g].'], ...
-            name, numel(edges), min(edges), max(edges));
+              ['%s must be at least two strictly ascending edges inside ' ...
+               '[0, 1]; got %d edges spanning [%.6g, %.6g].'], ...
+              name, numel(edges), min(edges), max(edges));
     end
     if n_quantiles ~= numel(edges)
         error('copulaCellMassFromCdf:QuantileCountMismatch', ...
-            'One quantile per %s edge is required; got %d for %d edges.', ...
-            name, n_quantiles, numel(edges));
+              'One quantile per %s edge is required; got %d for %d edges.', ...
+              name, n_quantiles, numel(edges));
     end
 end
